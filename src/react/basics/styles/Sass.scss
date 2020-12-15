@@ -1,0 +1,73 @@
+// 여러 파일에서 사용될 수 있는 Sass 변수 및 믹스인은 다른 파일로 따로 분리하여 작성한 뒤 필요한 곳에서 쉽게 불러와 사용
+//@import '.utils';
+
+// 변수 사용하기 
+$font-stack: sans-serif;
+$primary-color: #333;
+$red: #fa5252;
+$orange: #fd7e14;
+$yellow: #fcc419;
+$green: #40c057;
+$blue: #339af0;
+$indogo: #5c7cfa;
+$violet: #7950f2;
+
+// 믹스인 만들기 (재사용되는 스타일 블록을 함수처럼 사용할 수 있음)
+@mixin square($size) {
+	$calculated: 32px * $size;
+	width: $calculated;
+	height: $calculated;
+}
+
+body {
+	font: 100% $font-stack;
+	color: $primary-color;
+}
+
+.SassComponent { // 블록유효 범위 : 선언된 '{}' 블록 내에서만 유효범위
+	display: flex;
+	margin { // 중첩된 속성
+		top: 10px;
+		left: 10px;
+	}
+	.box { // 일반 CSS 에서는 .SassComponent .box 와 마찬가지
+		background: red;
+		cursor: pointer;
+		transition: all 0.3s ease-in;
+		// 중첩 안에서 '&' 키워드는 상위(부모) 선택자를 참조하여 치환
+		&.red {
+			// .red 클래스가 .box 와 함께 사용되었을 때
+			background: $red;
+			// 믹스인 실행
+			@include square(1);
+		}
+		&.orange {
+			background: $orange;
+			@include square(2);
+		}
+		&.yellow {
+			background: $yellow;
+			@include square(3);
+		}
+		&.green {
+			background: $green;
+			@include square(4);
+		}
+		&.blue {
+			background: $blue;
+			@include square(5);
+		}
+		&.indigo {
+			background: $indogo;
+			@include square(6);
+		}
+		&.violet {
+			background: $violet;
+			@include square(7);
+		}
+		&:hover {
+			// .box 에 마우스를 올렸을 때
+			background: black;
+		}
+	}
+}
