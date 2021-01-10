@@ -4,9 +4,14 @@
 ----------
 
 ## 설치
+> `create-react-app` 활용
 ```
 $ create-react-app test-react-typescript-cra.git --template typescript
 $ cd test-react-typescript-cra.git
+```
+또는 현재 폴더
+```
+$ create-react-app . --template typescript
 ```
 
 ## 개발모드 실행
