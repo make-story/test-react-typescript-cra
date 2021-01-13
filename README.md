@@ -1,10 +1,9 @@
 # React + Typescript 학습
-> React Create App
-
-----------
 
 ## 설치
-> `create-react-app` 활용
+> `React Create App` 활용  
+
+신규 프로젝트 폴더
 ```
 $ create-react-app test-react-typescript-cra.git --template typescript
 $ cd test-react-typescript-cra.git
@@ -12,6 +11,61 @@ $ cd test-react-typescript-cra.git
 또는 현재 폴더
 ```
 $ create-react-app . --template typescript
+```
+
+> `웹팩(WebPack)` 활용 (직접구성 방식)  
+```
+$ yran add react react-dom  
+$ yran add typescript
+$ yarn add babel-loader @babel/preset-env  
+$ yarn add ts-loader @babel/preset-typescript @babel/preset-react  
+```
+
+.babelrc 또는 webpack.config.js 설정 (.babelrc 우선순위를 가짐)
+```json
+{
+	"presets": [
+		"@babel/preset-env",
+		"@babel/preset-typescript",
+		"@babel/preset-react"
+	]
+}
+```
+```javascript
+module.exports = {
+	// ...
+	module: {
+		rules: [
+			{ 
+				test: /\.(js|jsx)$/,
+				exclude: /node_modules/,
+				use: {
+					loader: 'babel-loader',
+					options: {
+						presets: [
+							'@babel/preset-env',
+							'@babel/preset-typescript',
+							'@babel/preset-react',
+						] 
+					},
+				},
+			},
+			{
+				test: /\.(ts|tsx)$/, // TypeScript 를 사용 할때는 .ts (리액트 컴포넌트의 경우에는 .tsx) 확장자를 사용
+				exclude: /node_modules/,
+				use: [
+					{
+						loader: 'ts-loader',
+						options: {
+							transpileOnly: true
+						}
+					},
+				],
+			},
+		]
+	},
+	// ...
+};
 ```
 
 ## 개발모드 실행
