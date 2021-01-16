@@ -904,12 +904,251 @@ export default App;
 
 
 ## 리덕스 라이브러리 
+- 액션  
+상태에 어떠한 변화가 필요하면 액션(action)이란 것이 발생합니다.  
+액션 객체는 type 필드를 반드시 가지고 있어야 합니다.  
+이 값을 액션의 이름이라 생각하면 됩니다.  
+```javascript
+{
+	type: '액션의 이름'
+}
+```
+
+- 액션 생성 함수  
+액션 생성 함수(action creator)는 액션 객체를 만들어 주는 함수입니다.  
+```javascript
+const actionCrearor = () => ({
+	type: '액션의 이름',
+});
+```
+`{ type:'액션의 이름' }` 형태로 액션 객체를 만들 수 있지만, 매번 액션 객체를 직접 작성하기 번거로울 수 있고,  
+만드는 과정에서 실수로 정보를 놓칠 수도 있습니다. 이러한 일을 방지하기 위해 이를 함수로 만들어서 관리합니다.  
+
+- 리듀서  
+리듀서(reducer)는 변화를 일으키는 함수입니다.  
+액션을 만들어서 발생시키면 리듀서가 현재 상태와 전달받은 액션 객체를 파라미터로 받아 옵니다. 그리고 두 값을 참고하여 새로운 상태를 만들어서 반환해 줍니다.  
+```javascript
+function reducer(state, action) {
+	switch(action.type) {
+		case '액션의 이름':
+			return {
+				...state, // 불변성 유지
+				// ...
+			};
+		default:
+			return state;
+	}
+}
+```
+
+- 스토어  
+프로젝트에 리덕스를 적용하기 위해 스토어(store)를 만듭니다.  
+한 개의 프로젝트는 단 하나의 스토어만 가질 수 있습니다.
+
+- 디스패치  
+디스패치(dispatch)는 스토어의 내장 함수 중 하나입니다.  
+디스패치는 '액션을 발생시키는 것'이라고 이해하면 됩니다.  
+
+- 구독  
+구독(subscribe)도 스토어의 내장 함수 중 하나입니다.  
+subscribe 함수 안에 리스터 함수를 파라미터로 넣어서 호출해 주면, 이 리스너 함수가 액션이 디스패치되어 상태가 업데이트 될 떄마다 호출됩니다.  
+```javascript
+const listener = () => {
+	console.log('상태값이 변경되어 실행되었습니다!');
+};
+const unsubscribe = store.subscribe(listener);
+unsubscribe(); // 추후 구독을 비활성화할 때 함수를 호출  
+```
+
+-----
+
+> 프레젠테이셔널 컴포넌트  
+주로 상태 관리가 이루어지지 않고, 그저 props 를 받아 와서 화면에 UI를 보여주기만 하는 컴포넌트
+
+> 컨테이너 컴포넌트 만들기  
+리덕스 스토어와 연동된 컴포넌트를 컨테이너 컴포넌트라고 부릅니다.  
+컨테이너 컴포넌트는 리덕스와 연동되어 있는 컴포넌트로, 리덕스로부터 상태를 받아오기도 하고 리덕스 스토어에 액션을 디스패치하기도 합니다.
+
+> Ducks 패턴  
+액션 타입, 액션 생성 함수, 리듀서 함수를 기능별로 파일 하나에 몰아서 다 작성하는 방식입니다.  
+
+
+- 리덕스 설계 순서
+1. modules/counter 리덕스 모듈 만들기 
+    - 상태 정의
+2. modules/index 루트 리듀서 만들기 
+    - 각 리듀스 모듈 하나로 합침
+3. index.js 에 스토어를 생성한 후, Provider 로 리액트 프로젝트에 리덕스를 적용 
+    - createStore 통해 스토어 생성 
+	```javascript
+	<Provider store={store}><App /></Provider>
+	```
+4. components/Counter 프레젠케이셔널 컴포넌트 만들기 
+    - 그저 props 를 받아 와서 화면에 UI를 보여주기만 하는 컴포넌트
+5. containers/CounterContainer 컨테이너 컴포넌트 만들기 
+    - 리덕스 스토어와 연동된 컴포넌트 
+6. App 에서 CounterContainer 를 렌더링
+
+-----
+
+```javascript
+// modules/counter.js
+import { createAction, handleActions } from 'redux-actions'; // redux-actions 라이브러리 활용 (리덕스를 좀 더 편하게 사용하는 방법)
+
+// 1. 액션 타입 정의하기 - 상태관리가 필요한 것의 이름
+// '모듈이름/액션이름' 과 같은 형태로 작성 (나중에 프로젝트가 커졌을 때 액션의 이름이 출돌되지 않도록)
+const INCREASE = 'counter/INCREASE';
+const DECREASE = 'counter/DECREASE';
+
+// 2. 액션 생성 함수 만들기 - 액션 객체를 만들어 주는 함수입니다.
+export const increase = createAction(INCREASE);
+export const decrease = createAction(DECREASE);
+
+// 3. 초기 상태 값 (상태는 꼭 객체일 필요가 없습니다. initialState = 0 처럼 숫자값도 작동합니다.)
+const initialState = {
+	number: 0
+};
+
+// 4. 리듀서 함수 만들기 - 리듀서(reducer)는 변화를 일으키는 함수입니다. (상태값 변경)
+const counter = handleActions( // 각 액션에 대한 업데이트 함수 
+	// 각 액션 타입에 따라 상태 변경
+	{
+		[INCREASE]: (state, action) => {
+			return { 
+				...state,
+				number: state.number + 1 
+			};
+		},
+		[DECREASE]: (state, action) => {
+			return { 
+				...state,
+				number: state.number - 1 
+			};
+		},
+	},
+	// 초기 상태 값 
+	initialState,
+);
+
+export default counter;
+```
+
+```javascript
+// modules/index.js
+import { combineReducers } from 'redux';
+import counter from './counter';
+import todos from './todos';
+
+// 루트 리듀서 만들기 - combineReducers 이용해 리듀서를 하나로 합쳐주는 것
+const rootReducer = combineReducers({
+	counter,
+	todos,
+});
+
+export default rootReducer;
+```
+
+```javascript
+// index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import { composeWithDevTools } from 'redux-devtools-extension'; // Redux DevTools
+
+import App from './App';
+import rootReducer from './modules'; // modules/index.js 호출
+
+// 리덕스 스토어
+//const store = createStore(rootReducer);
+const store = createStore(rootReducer, composeWithDevTools());
+
+// Provider 컴포넌트를 사용하여 프로젝트에 리덕스 적용하기
+ReactDOM.render(
+	<Provider store={store}>
+		<App />
+	</Provider>, 
+	document.getElementById('root')
+);
+```
+
+```javascript
+// components/Counter.js
+import React from 'react';
+
+// 프레젠테이셔널 컴포넌트 - 주로 상태 관리가 이루어지지 않고, 그저 props 를 받아 와서 화면에 UI를 보여주기만 하는 컴포넌트
+const Counter = ({ number, onIncrease, onDecrease }) => {
+	return (
+		<div>
+			<h1>{number}</h1>
+			<div>
+				<button onClick={onIncrease}>+1</button>
+				<button onClick={onDecrease}>-1</button>
+			</div>
+		</div>
+	);
+};
+
+export default Counter;
+```
+
+```javascript
+// containers/CounterContainer
+import React, { useCallback } from 'react';
+import { connect, useSelector, useDispatch } from 'react-redux'; 
+import Counter from '../components/Counter';
+import { increase, decrease } from '../modules/counter';
+
+// 컨테이너 컴포넌트 만들기 - 리덕스 스토어와 연동된 컴포넌트를 컨테이너 컴포넌트라고 부릅니다.
+const CounterContainer = () => {
+	// useSelector Hook 을 사용하면 connect 함수를 사용하지 않고도 리덕스의 상태를 조회할 수 있습니다.
+	const number = useSelector(state => state.counter.number);
+	// useDispatch Hook 은 컴포넌트 내부에서 스토어의 내장 함수 dispatch 를 사용할 수 있게 해줍니다.
+	const dispatch = useDispatch();
+
+	// 성능최적화 전
+	/*return (
+		<Counter number={number} onIncrease={() => dispatch(increase())} onDecrease={() => dispatch(decrease())}
+		/>
+	);*/
+
+	// useCallback 를 통해 성능 최적화 가능
+	// 숫자가 바뀌어서 컴포넌트가 리렌더링될 때마다 onIncrease 함수와 onDecrease 함수가 새롭게 만들어지고 있으므로 최적화 필요
+	const onIncrease = useCallback(() => dispatch(increase()), [dispatch]);
+	const onDecrease = useCallback(() => dispatch(decrease()), [dispatch]);
+	return (
+		<Counter number={number} onIncrease={onIncrease} onDecrease={onDecrease} />
+	);
+};
+
+export default CounterContainer;
+```
+
+```javascript
+// App.js
+import React from 'react';
+import CounterContainer from './containers/CounterContainer';
+
+const App = () => {
+	return (
+		<div>
+			<CounterContainer />
+		</div>
+	);
+};
+
+export default App;
+```
 
 
 
 ## redux-saga
+```javascript
 
+```
 
 
 ## 코드 스플리팅
+```javascript
 
+```
