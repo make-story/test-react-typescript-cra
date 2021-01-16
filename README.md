@@ -433,23 +433,473 @@ DOM 이 생성되고 웹 브라우저상에 나타나는 것을 `마운트(mount
 
 ## Hooks
 - useState  
+하나의 useState 함수는 하나의 상태 값만 관리할 수 있습니다.
+```javascript
+const [value/*상태값*/, setValue/*상태를 설정하는 함수*/] = useState(0/*상태의 기본값*/);
+```
+(상태를 설정하는 함수를 호출할 경우 컴포넌트 리렌더링)
 
 
 - useEffect  
+리액트 컴포넌트가 렌더링될 때마다 특정 작업을 수행하도록 설정할 수 있는 Hook 입니다.
+```javascript
+useEffect(() => {
+	console.log('렌더링이 완료되었습니다!');
+});
+useEffect(() => {
+	console.log('마운트될 때만 실행됩니다!');
+}, []);
+const [name. setName] = useState('TEST');
+useEffect(() => {
+	console.log('특정 값이 업데이트 되었습니다!', name);
+}, [name]);
+```
 
+useEffet 는 기본적으로 렌더링되고 난 직후마다 실행되며, 두 번째 파라미터 배열에 무엇을 넣는지에 따라 실행되는 조건이 달라집니다.  
+컴포넌트가 언마운트되기 전이나 업데이트되기 직전에 어떠한 작업을 수항하고 싶다면 useEffect 에서 뒷정리(cleanup) 함수를 반환해 주어야 합니다.
+```javascript
+useEffect(() => {
+	console.log('effect!');
+	return () => {
+		console.log('cleanup!');
+	};
+})
+```
 
 - useReducer  
+useReducer 는 useState 보다 더 다양한 컴포넌트 상황에 따라 다양한 상태를 다른 값으로 업데이트해 주고 싶을 때 사용하는 Hook 입니다.  
+리듀서는 현재 상태, 그리고 업데이트를 위해 필요한 정보를 담은 액션(action) 값을 전달받아 새로운 상태를 반환하는 함수입니다.  
+```javascript
+import React, { useReducer } from 'react';
+
+function reducer(state, action) {
+	// 불변성을 지키면서 업데이트한 새로운 상태를 반환합니다.
+	switch(action.type) {
+		case 'INCREMENT':
+			return { value: state.value + 1 };
+		case 'DECREMENT':
+			return { value: state.value - 1 };
+		default:
+			return state;
+	}
+}
+
+const Counter = () => {
+	const [state, dispatch] = useReducer(reducer, { value: 0 });
+	// useReducer 두 번째 파라미터에 undefined 를 넣고, 세 번째 파라미터에 초기 상태를 만들어 주는 함수를 넣으면, 컴포넌트가 맨 처음 렌더링될 때만 함수가 호출 됨
+	//const [state, dispatch] = useReducer(reducer, undefined, () => ({ value: 0 })); 
+
+	return (
+		<>
+			<button onClick={() => dispatch({ type: 'INCREMENT' })}>+1</button>
+			<button onClick={() => dispatch({ type: 'DECREMENT' })}>-1</button>
+		</>
+	);
+}
+
+export default Counter;
+```
+
+Input 상태관리
+```javascript
+import React, { useReducer } from 'react';
+
+function reducer(state, action) {
+	return {
+		...state,
+		[action.name]: action.value,
+	};
+}
+
+const Info = () => {
+	const [state, dispatch] = useReducer(reducer, { name: '', nickname: '' });
+	const { name, nickname } = state;
+
+	const onChange = e => {
+		dispatch(e.target); // input element 객체
+	};
+
+	return (
+		<>
+			<input name="name" value={name} onChange={onChange} />
+			<input name="nickname" value={nickname} onChange={onChange} />
+		</>
+	);
+}
+
+export default Info;
+```
+
 
 - useMemo  
+렌더링하는 과정에서 특정 값이 바뀌었을 때만 연산하고, 원하는 값이 바뀌지 않았다면 이전에 연산했던 결과를 다시 사용합니다.  
+```javascript
+import React, { useState, useMemo } from 'react';
+
+const getAverage = numbers => {
+	console.log('평균값 계산!');
+	if(numbers.length === 0) {
+		return 0;
+	}
+	const sum = numbers.reduce((a, b) => a + b);
+	return sum / numbers.length;
+};
+
+const Average = () => {
+	const [list, setList] = useState([]);
+
+	const onChange = e => {
+		setList([1, 2, 3]);
+	};
+
+	const avg = useMemo(() => {
+		return getAverage(list);
+	}, [list]); // 렌더링하는 과정에서 특정 값이 변경되었을 때만 실행, 값이 기존과 동일하면 실행 안함
+
+	return (
+		<>
+			<button onClick={onChange}>변경!</button>
+			평균값: {avg}
+		</>
+	);
+};
+
+export default Average;
+```
+
 
 - useCallback  
+이 Hook 을 사용하면 이벤트 핸들러 함수를 필요할 때만 생성할 수 있습니다.  
+이벤트 핸들러 함수들은 컴포넌트가 리렌더링될 때마다 새로 생성됩니다. 대부분의 경우 이러한 방식은 문제가 없지만, 컴포넌트의 렌더링이 자주 발생하거나 렌더링해야 할 컴포넌트 개수가 많이지면 이 부분을 최적화해 주는 것이 좋습니다.
+
+`숫자, 문자열, 객체처럼 일반 값을 재사용하려면 useMemo 를 사용하고, 함수를 재사용하려면 useCallback 을 사용하세요.`
+
+```javascript
+import React, { useState, useMemo, useCallback } from 'react';
+
+const getAverage = numbers => {
+	console.log('평균값 계산!');
+	if(numbers.length === 0) {
+		return 0;
+	}
+	const sum = numbers.reduce((a, b) => a + b);
+	return sum / numbers.length;
+};
+
+const Average = () => {
+	const [list, setList] = useState([]);
+	const [number, setNumber] = useState('');
+	
+	const onChange = useCallback(e => {
+		setNumber(e.target.value);
+	}, []); // 컴포넌트가 처음 렌더링될 때만 함수 생성
+
+	const onInsert = useCallback(e => {
+		const nextList = list.concat(parseInt(number));
+		setList(nextList);
+		setNumber('');
+	}, [number, list]); // number 또는 list 가 바뀌었을 때만 함수 생성
+	
+	const avg = useMemo(() => {
+		return getAverage(list);
+	}, [list]); // 렌더링하는 과정에서 특정 값이 변경되었을 때만 실행, 값이 기존과 동일하면 실행 안함
+
+	return (
+		<>
+			<input onChange={onChange} />
+			<button onClick={onInsert}>등록!</button>
+			{list.map((value, index) => (
+				<span key={index}>{value}</span>
+			))}
+			평균값: {avg}
+		</>
+	);
+};
+
+export default Average;
+```
+
 
 - useRef  
+useRef Hook 은 함수형 컴포넌트에서 ref 를 쉽게 사용할 수 있도록 해 줍니다.  
+useRef 를 사용하여 ref 를 설정하면 useRef 를 통해 만든 객체 안의 current 값이 실제 엘리먼트를 가리킵니다.  
+```javascript
+import React, { useState, useMemo, useCallback, useRef } from 'react';
+
+const getAverage = numbers => {
+	console.log('평균값 계산!');
+	if(numbers.length === 0) {
+		return 0;
+	}
+	const sum = numbers.reduce((a, b) => a + b);
+	return sum / numbers.length;
+};
+
+const Average = () => {
+	const [list, setList] = useState([]);
+	const [number, setNumber] = useState('');
+	const inputElement = useRef(null);
+	
+	const onChange = useCallback(e => {
+		setNumber(e.target.value);
+	}, []); // 컴포넌트가 처음 렌더링될 때만 함수 생성
+
+	const onInsert = useCallback(e => {
+		const nextList = list.concat(parseInt(number));
+		setList(nextList);
+		setNumber('');
+
+		// ref 
+		inputElement.current.focus(); 
+	}, [number, list]); // number 또는 list 가 바뀌었을 때만 함수 생성
+
+	const avg = useMemo(() => {
+		return getAverage(list);
+	}, [list]); // 렌더링하는 과정에서 특정 값이 변경되었을 때만 실행, 값이 기존과 동일하면 실행 안함
+
+	return (
+		<>
+			<input onChange={onChange} ref={inputElement} />
+			<button onClick={onInsert}>등록!</button>
+			{list.map((value, index) => (
+				<span key={index}>{value}</span>
+			))}
+			평균값: {avg}
+		</>
+	);
+};
+
+export default Average;
+```
+
 
 - 커스텀 Hooks 만들기  
+여러 컴포넌트에서 비슷한 기능을 공유할 경우, 이를 여러분만의 Hook 으로 작성하여 로직을 재사용할 수 있습니다.  
+```javascript
+// customHook/useInputs.js
+import React, { useReducer } from 'react';
+
+function reducer(state, action) {
+	return {
+		...state,
+		[action.name]: action.value // <input name="" value="" />
+	};
+}
+
+export default function useInputs(initialForm) {
+	const [state, dispatch] = useReducer(reducer, initialForm);
+	const onChange = e => {
+		dispatch(e.target);
+	};
+	return [state, onChange];
+};
+```
+```javascript
+// Info.js
+import React from 'react';
+import useInputs from './customHook/useInputs';
+
+const Info = () => {
+	const [state, onChange] = useInputs({ name: '', nickname: '' });
+	const {name, nickname} = state;
+
+	return (
+		<>
+			<input name="name" value={name} onChange={onChange} />
+			<input name="nickname" value={nickname} onChange={onChange} />
+			<p>{name} ({nickname})</p>
+		</>
+	);
+};
+
+export default Info;
+```
+<br>
+
+usePromise 
+```javascript
+import { useState, useEffect } from 'react';
+
+export default function usePromise(promiseTarget, dependence=[]) {
+	const [loading, setLoading] = useState(false);
+	const [resolve, setResolve] = useState(null); // 정상
+	const [reject, setReject] = useState(null); // 에러
+
+	useEffect(() => {
+		const process = async () => {
+			// 로딩상태 변경
+			setLoading(true);
+			// 실행
+			try {
+				const result = await promiseTarget();
+				setResolve(result);
+			}catch (error) {
+				setReject(error);
+			}
+			// 로딩상태 변경
+			setLoading(false);
+		};
+		process();
+	}, dependence);
+
+	return [loading, resolve, reject];
+};
+
+/*
+-
+사용 예
+
+const [loading, response, error] = usePromise(() => {
+	return axios.get('url');
+}, [category]);
+*/
+```
+
 
 
 ## Context API
+Context API 는 리액트 프로젝트에서 전역적으로 사용할 데이터가 있을 때 유용한 기능입니다.  
+(Context API 는 리액트 v16.3 부터 사용하기 쉽게 많이 개선되었습니다.)  
+
+- 새 Context 만들기  
+```javascript
+// contexts/color.js
+import React, { createContext, useState } from 'react';
+
+// Context 기본 상태 지정
+// 기본값은 Provider 를 사용하지 않았을 때만 사용됩니다.
+// (만약 Provider 를 사용했는데 value 값을 명시하지 않았다면, 이 기본값을 사용하지 않기 떄문에 오류가 발생합니다.)
+const ColorContext = createContext({
+	state: {
+		color: 'block', 
+		subcolor: 'red',
+	},
+	actions: {
+		setColor: () => {},
+		setSubcolor: () => {},
+	}
+});
+
+// Provider 를 사용하면 Context 값을 변경할 수 있습니다.
+// Context API 를 사용할 컴포넌트에 값 주입
+const ColorProvider = ({ children/*props.children*/ }) => {
+	const [color, setColor] = useState('black');
+	const [subcolor, setSubcolor] = useState('red'); // Consumer 내부에서 상태 변경이 가능하도록 합니다.
+
+	const value = {
+		state: { color, subcolor },
+		actions: { setColor, setSubcolor },
+	};
+
+	// Context 와 컴포넌트 연결 (값 변경)
+	// Provider 를 사용할 떄는 value 값을 명시해 주어야 제대로 작동!!
+	return (
+		<ColorContext.Provider value={value}>
+			{children}
+		</ColorContext.Provider>
+	);
+};
+
+const ColorConsumer = ColorContext.Consumer;
+//const { Consumer: ColorConsumer } = ColorContext;
+
+// ColorProvider, ColorConsumer 내보내기 
+export { ColorProvider, ColorConsumer };
+
+export default ColorContext;
+```
+
+
+- Consumer 사용하기  
+Context 를 사용할 컴포넌트 
+```javascript
+// components/ColorBox.js
+import React, { useContext } from 'react';
+import ColorContext from '../contexts/color';
+
+const ColorBox = () => {
+	const { state } = useContext(ColorContext); // Context 사용하기
+	const style = {
+		width: '20px',
+		height: '20px',
+	};
+
+	return (
+		<>
+			<div style={
+				{
+					...style,
+					background: state.color,
+				}
+			}></div>
+			<div style={
+				{
+					...style,
+					background: state.subcolor,
+				}
+			}></div>
+		</>
+	);
+};
+
+export default ColorBox;
+```
+```javascript
+// components/SelectColors.js
+import React from 'react';
+import { ColorConsumer } from '../contexts/color';
+
+const colors = ['red', 'orange', 'yellow', 'green', 'blue'];
+
+const SelectColors = () => {
+	return (
+		<ColorConsumer>
+			{({ actions/* Context 값 */ }) => (
+				<div>
+					{colors.map((color, index) => (
+						<div 
+							key={index} 
+							style={{ background: color, width: '20px', height: '20px' }} 
+							onClick={() => actions.setColor(color)}
+							onContextMenu={(event) => { // 마우스 오른쪽 클릭 
+								event.preventDefault();
+								actions.setSubcolor(color);
+							}}
+						>
+						</div>
+					))}
+				</div>
+			)}
+		</ColorConsumer>		
+	);
+};
+
+export default SelectColors;
+```
+
+
+- Provider  
+Context 의 값 변경
+```javascript
+// App.js
+import React from 'react';
+import ColorBox from './components/ColorBox';
+import { ColorProvider } from './contexts/color';
+import SelectColors from './components/SelectColors';
+
+const App = () => {
+	return (
+		<ColorProvider>
+			<div>
+				<SelectColors />
+				<ColorBox />
+			</div>
+		</ColorProvider>
+	);
+};
+
+export default App;
+```
 
 
 
