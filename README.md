@@ -1244,7 +1244,7 @@ export default App;
 ```
 
 
-- React.lazy 와 Suspense 사용
+- React.lazy 와 Suspense 사용  
 React.lazy 는 컴포넌트를 렌더링하는 시점에서 비동기적으로 로딩할 수 있게 해 주는 유틸 함수 입니다.
 ```javascript 
 const SplitMe = React.lazy(() => import('./SplitMe'));
