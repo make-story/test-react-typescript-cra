@@ -24,7 +24,8 @@ $ yarn add babel-loader @babel/preset-env
 $ yarn add ts-loader @babel/preset-typescript @babel/preset-react  
 ```
 
-.babelrc 또는 webpack.config.js 설정 (.babelrc 우선순위를 가짐)
+.babelrc 또는 webpack.config.js 설정   
+(webpack 에 babel presets 설정이 있고, .babelrc 파일에도 presets 설정이 있다면, .babelrc 파일이 우선순위를 가짐)
 ```json
 {
 	"presets": [
@@ -989,6 +990,14 @@ unsubscribe(); // 추후 구독을 비활성화할 때 함수를 호출
     - 리덕스 스토어와 연동된 컴포넌트 
 6. App 에서 CounterContainer 를 렌더링
 
+
+> redux-actions  
+redux-actions 를 사용하면 액션 생성 함수를 더 짧은 코드로 작성할 수 있습니다.  
+그리고 리듀서를 작성할 때도 switch/case 문이 아닌 handleActions 라는 함수를 사용하여 각 액션마다 업데이트 함수를 설정하는 형식으로 작성해 줄 수 있습니다.
+```
+$ yarn add redux-actions
+```
+
 -----
 
 ```javascript
@@ -1001,6 +1010,49 @@ const INCREASE = 'counter/INCREASE';
 const DECREASE = 'counter/DECREASE';
 
 // 2. 액션 생성 함수 만들기 - 액션 객체를 만들어 주는 함수입니다.
+/*
+createAction 으로 액션을 만들면,
+액션에 필요한 추가 데이터는 payload 라는 이름을 사용합니다.
+
+const MY_ACTION = 'sample/MY_ACTION';
+const myAction = createAction(MY_ACTION);
+const action = myAction('hello world'); 
+// 결과 : 
+{ 
+	type: MY_ACTION, 
+	payload: 'hello world' 
+}
+
+
+액션 생성 함수에서 받아 온 파라미터를 그대로 payload 에 넣는 것이 아니라 변형을 주어서 넣고 싶다면,
+createAction 의 두 번째 파라미터에 payload 를 정의하는 함수를 따로 선언해서 넣어 주면 됩니다.
+
+const MY_ACTION = 'sample/MY_ACTION';
+const myAction = createAction(MY_ACTION, text => `${text}!`);
+const action = myAction('hello world'); 
+// 결과 : 
+{ 
+	type: MY_ACTION, 
+	payload: 'hello world!' 
+}
+
+
+action.payload 접근
+const initialState = {
+	text: 'initial state'
+};
+handleActions(
+	{
+		[MY_ACTION]: (state, action) => {
+			return {
+				...state,
+				text: action.payload
+			};
+		}
+	},
+	initialState
+)
+*/
 export const increase = createAction(INCREASE);
 export const decrease = createAction(DECREASE);
 
@@ -1014,12 +1066,14 @@ const counter = handleActions( // 각 액션에 대한 업데이트 함수
 	// 각 액션 타입에 따라 상태 변경
 	{
 		[INCREASE]: (state, action) => {
+			// action.payload
 			return { 
 				...state,
 				number: state.number + 1 
 			};
 		},
 		[DECREASE]: (state, action) => {
+			// action.payload
 			return { 
 				...state,
 				number: state.number - 1 
@@ -1059,7 +1113,7 @@ import { composeWithDevTools } from 'redux-devtools-extension'; // Redux DevTool
 import App from './App';
 import rootReducer from './modules'; // modules/index.js 호출
 
-// 리덕스 스토어
+// 리덕스 스토어 (프로젝트당 하나의 단일스토어 원칙!)
 //const store = createStore(rootReducer);
 const store = createStore(rootReducer, composeWithDevTools());
 
@@ -1101,8 +1155,10 @@ import { increase, decrease } from '../modules/counter';
 
 // 컨테이너 컴포넌트 만들기 - 리덕스 스토어와 연동된 컴포넌트를 컨테이너 컴포넌트라고 부릅니다.
 const CounterContainer = () => {
+	// 상태조회
 	// useSelector Hook 을 사용하면 connect 함수를 사용하지 않고도 리덕스의 상태를 조회할 수 있습니다.
 	const number = useSelector(state => state.counter.number);
+	// 디스패치
 	// useDispatch Hook 은 컴포넌트 내부에서 스토어의 내장 함수 dispatch 를 사용할 수 있게 해줍니다.
 	const dispatch = useDispatch();
 
@@ -1141,14 +1197,93 @@ export default App;
 ```
 
 
+## redux-trunk
+redux-trunk 는 리덕스를 사용하는 프로젝트에서 비동기 작업을 처리할 때 가장 기본적으로 사용하는 미들웨어 입니다.  
+Trunk 는 특정 작업을 나중에 할 수 있도록 미루기 위해 함수 형태로 감싼 것을 의미합니다.
 
 ## redux-saga
+redux-saga 는 redux-trunk 다음으로 많이 사용하는 비동기 작업 관련 미들웨어 입니다.  
+- 기존 요청을 취소해야할 때(불필요한 중복 요청 방지)  
+- 특정 액션이 발생했을 때 다른 액션을 발생시키거나, API 요청 등 리덕스와 관계없는 코드를 실행할 때  
+- 웹소켓을 사용할 때
+- API 요청 실패 시 재요청해야 할 때  
+(redux-saga 에서는 ES6 의 제너레이터 함수라는 문법을 사용합니다.)
 ```javascript
 
 ```
 
 
-## 코드 스플리팅
+## 코드 스플리팅  
+- dynamic import  
+import 를 상단에서 하지 않고 import() 함수 형태로 메서드 안에서 사용하면, 파일을 따로 분리시켜 저장합니다.  
+그리고 실제 함수가 필요한 지점에 파일을 불러와서 함수를 사용할 수 있습니다.  
+이 함수를 통해 모듈을 불러올 때 모듈에서 default 로 내보낸 것은 result.default 를 참조해야 사용할 수 있습니다.  
 ```javascript
+// notify.js
+export default function notify() {
+	alert('안녕!');
+};
+```
+```javascript
+// App.js
+import React from 'react';
 
+function App() {
+	const onClick = () => {
+		import('./notify')
+		.then(result => result.default());
+	};
+	return (
+		<>
+			<button onClick={onClick}>Dynamin Import!</button>
+		</>
+	);
+}
+
+export default App;
+```
+
+
+- React.lazy 와 Suspense 사용
+React.lazy 는 컴포넌트를 렌더링하는 시점에서 비동기적으로 로딩할 수 있게 해 주는 유틸 함수 입니다.
+```javascript 
+const SplitMe = React.lazy(() => import('./SplitMe'));
+```
+
+Suspense 는 리액트 내장 컴포넌트로서 코드 스플리팅된 컴포넌트를 로딩하도록 발동시킬 수 있고, 로딩이 끝나지 않았을 때 보여 줄 UI를 설정할 수 있습니다.   
+```javascript 
+import React, { Suspense } from 'react';
+
+function App() {
+	const SplitMe = React.lazy(() => import('./SplitMe'));
+	return (
+		<Suspense fallback={<div>loading...</div>}>
+			<SplitMe />
+		</Suspense>
+	);
+}
+
+export default App;
+```
+
+
+- Loadable Components 를 통한 코드 스플리팅  
+Loadable Components 는 코드 스플리팅을 편하게 하도록 도와주는 서드파티 라이브러리 입니다.  
+이 라이브러리의 이점은 서버 사이트 렌더링을 지원한다는 것입니다. 또한, 렌더링하기 전에 필요할 때 스플리팅된 파일을 미리 불러올 수 있는 기능도 있습니다.  
+```javascript 
+import React from 'react';
+import loadable from '@loadable/component';
+
+const SplitMe = loadable(() => import('./SplitMe'), {
+	fallback: <div>loading...</div>
+});
+
+// 컴포넌트 미리 불러오기(preload)
+//SplitMe.preload();
+
+function App() {
+	return (
+		<SplitMe />
+	);
+}
 ```
