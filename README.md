@@ -3,6 +3,14 @@
 > 리액트 설계 원칙  
 https://ko.reactjs.org/docs/design-principles.html
 
+> 참고페이지  
+https://www.tsx.guide/introduction/welcome    
+https://fettblog.eu/typescript-react/  
+https://fettblog.eu/typescript-react-component-patterns/  
+
+
+-----
+
 ## 설치
 > `React Create App` 활용  
 
@@ -1287,3 +1295,90 @@ function App() {
 	);
 }
 ```
+
+-----
+
+# React에서 Stateful 대 Stateless 함수형 컴포넌트
+## Props와 State
+- props  
+```javascript
+const Counter = (props) => {
+	// props : 부모 컴포넌트로 부터 전달되는 값 (읽기전용)
+};
+```
+```javascript
+// typescript  
+import React from "react";
+
+type TitleProps = {
+	color?: string;
+};
+const Title: React.FC<TitleProps> = props => {
+  	const { color, children } = props; 
+	return <h1 style={{ color }}>{children}</h1>;
+};
+
+export default Title;
+```
+```javascript
+// typescript
+import React, { FC } from "react";
+
+type GreetingProps = {
+	name: string;
+}
+
+const Greeting:FC<GreetingProps> = ({ name }) => {
+	return <h1>Hello {name}</h1>
+};
+
+export default Greeting;
+```
+```javascript
+// typescript - FC를 사용하지 않는 방법
+import React from "react";
+
+type GreetingProps = {
+	name: string;
+};
+
+function Greeting(props: GreetingProps) {
+  return <p>Hi {props.name}</p>
+}
+
+export default Greeting;
+```
+
+
+- state  
+```javascript  
+class App extends Component {
+	constructor(props) {
+		// 클래스 component는 props와 함께 기본 생성자를 호출해야 합니다.
+		super(props);
+		
+		// 클래스 컴포넌트를 선택하는 주된 이유는 state를 넣을 수 있다는 것
+		this.state = { count: 1 };
+	}
+
+	handleCount(value) {
+		// React 컴포넌트에는 state를 업데이트하기 위해  setState라는 메서드가 있습니다.
+		this.setState({count: this.state.count+ value});
+	}
+	
+	render() {
+		return <div></div>;
+	}
+}
+```
+
+- Stateful 컴포넌트  
+Stateful 컴포넌트는 늘 클래스 컴포넌트입니다.  
+(stateful 컴포넌트에는 생성자에서 초기화되는 state가 있습니다.)  
+
+- Stateless 컴포넌트  
+Stateless 컴포넌트를 만드는 데 함수형이나 클래스를 사용하면 됩니다.  
+
+-----
+
+# PureComponent란?
