@@ -25,6 +25,7 @@ $ create-react-app . --template typescript
 ```
 
 > `웹팩(WebPack)` 활용 (직접구성 방식)  
+https://fettblog.eu/typescript-react/getting-started/#npm-packages-to-install  
 ```
 $ yran add react react-dom  
 $ yran add typescript
