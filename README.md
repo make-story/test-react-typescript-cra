@@ -1005,6 +1005,7 @@ redux-actions 를 사용하면 액션 생성 함수를 더 짧은 코드로 작�
 ```
 $ yarn add redux-actions
 ```
+(Typescript - https://github.com/piotrwitek/typesafe-actions)  
 
 -----
 
@@ -1423,3 +1424,13 @@ Stateless 컴포넌트를 만드는 데 함수형이나 클래스를 사용하�
 -----
 
 # PureComponent란?
+`React.PureComponent`  
+동일한 props와 state라는 전제 하에 동일한 결과 값이 확실히 반환된다면 컴포넌트를 순수하다고(pure) 말합니다.  
+```javascript 
+const HelloWorld = ({name}) => (
+	<div>{`Hi ${name}`}</div>
+);
+```
+클래스 컴포넌트도 props와 state가 변하지 않는 한 순수(pure)할 수 있습니다.  
+React.PureComponent는 성능을 최적화하는 데 활용됩니다.   
+(성능상의 이슈에 맞닥뜨리지 않는 한 이 컴포넌트를 사용해야 하는지 고려해 볼 이유는 없습니다.)
