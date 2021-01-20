@@ -591,6 +591,63 @@ const h1Styles: CSS.Properties = {
 };
 ```
 
+### Emotion
+https://emotion.sh/docs/typescript  
+```bash
+$ npm install --save @emotion/core
+$ npm install --save @emotion/styled
+```
+```javascript
+/** @jsx jsx */
+// the line above activates the jsx factory by emotion
+import { css, jsx } from '@emotion/core';
+
+
+const h1Style = css({
+	backgroundColor: 'rgba(255, 255, 255, 0.85)',
+	position: 'absolute',
+	right: 0,
+	bottom: '2rem',
+	padding: '0.5rem',
+	fontFamily: 'sans-serif',
+	fontSize: '1.5rem',
+	boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)'
+});
+
+export function Heading({ title } : { title: string} ) {
+	return <h1 css={h1Style}>{title}</h1>;
+}
+```
+
+확장
+```javascript
+const h1Style = css({
+	...originalStyles,
+	...maybeMixedWithOtherStyles
+});
+```
+
+styled
+```javascript
+/** @jsx jsx */
+import styled from '@emotion/styled';
+import { jsx } from '@emotion/core';
+
+const LayoutWrapper = styled('div')`
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	grid-gap: 1rem;
+`;
+
+type LayoutProps = {
+	children: React.ReactNode;
+};
+
+export function Layout({ children }: LayoutProps) {
+	return <LayoutWrapper>{children}</LayoutWrapper>;
+}
+```
+
 ### Styled Components
 https://styled-components.com/
 ```bash
