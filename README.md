@@ -1431,7 +1431,7 @@ watch.next({ type: 'HELLO' });
 // { value: undefined, donw: false }
 ```
 
-`redux-saga 사용 예`
+`redux-saga 사용 예`  
 액션 모듈
 ```javascript
 // modules/counter.js
