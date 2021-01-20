@@ -106,7 +106,7 @@ $ yarn build
 $ yarn eject
 ```
 
-----------
+-----
 
 ### 학습
 > `/src/react/bacics` 주석 참고
@@ -174,7 +174,7 @@ Virtual DOM을 사용한다고 해서 사용하지 않을 때와 비교하여 �
 > 라우팅에는 리액트 라우터(react-router), Ajax 처리에는 axios나 fetch, 상태 관리에는 리덕스(redux)나 MobX 를 사용  
 또 리액트는 다른 웹 프레임워크나 라이브러리와 혼용할 수 있음(예: Backbone.js, AngularJS 등)
 
-
+-----
 
 ## JSX
 - 감싸인 요소  
@@ -261,7 +261,7 @@ JSX에서는 꼭 닫는 태그가 존재해야 합니다. (또는 self-closing �
 - 주석  
 JSX 내부에서 주석을 작성할 때는 `{/* ... */}` 와 같은 형식으로 작성합니다.  
 
-
+-----
 
 ## 컴포넌트
 - props  
@@ -291,7 +291,7 @@ MyComponent.defaultProps = {
 export default MyComponent;
 ``` 
 
-
+-----
 
 ## 이벤트 핸들링
 - 이벤트 이름은 카멜 표기법으로 작성합니다.  
@@ -310,7 +310,7 @@ export default MyComponent;
 </div>
 ```
 
-
+-----
 
 ## ref: DOM에 이름 달기
 > 리액트 컴포넌트 안에서는 id를 사용하면 안 되나요?  
@@ -387,7 +387,7 @@ class App extends Component {
 export default App;
 ```
 
-
+-----
 
 ## 컴포넌트 반복
 - key  
@@ -407,7 +407,7 @@ const InterationSample = () => {
 export default InterationSample;
 ```
 
-
+-----
 
 ## 컴포넌트 라이프 사이클
 라이프사이클 메서드의 종류는 총 아홉 가지입니다.  
@@ -441,7 +441,7 @@ DOM 이 생성되고 웹 브라우저상에 나타나는 것을 `마운트(mount
 마운트의 반대 과정, 즉 컴포넌트를 DOM에서 제거하는 것을 언마운트(unmount)라고 합니다.  
 	- componentWillUnmount
 
-
+-----
 
 ## Hooks
 - useState  
@@ -767,7 +767,98 @@ const [loading, response, error] = usePromise(() => {
 */
 ```
 
+-----
 
+## immer 를 사용하여 더 쉽게 불변성 유지하기
+객채의 구조가 엄청나게 깊어지면 불변성을 유지하면서 이를 업데이트하는 것이 매우 힘듭니다.  
+```javascript
+const object = {
+	somewhere: {
+		deep: {
+			inside: 3,
+			array: [1, 2, 3, 4],
+		},
+		bar: 2,
+	},
+	foo: 1,
+};
+
+// somewhere.deep.inside 값을 4로 바꾸기 (불변성을 유지하면서 변경)
+let nextObject = {
+	...object,
+	somewhere: {
+		...object.somewhere,
+		deep: {
+			...object.somewhere.deep,
+			inside: 4,
+		},
+	},
+};
+
+// somewhere.deep.array 에 5 추가하기
+let nextObject = {
+	...object,
+	somewhere: {
+		...object.somewhere,
+		deep: {
+			...object.somewhere.deep,
+			array: object.somewhere.deep.array.concat(5),
+		},
+	},
+};
+```
+
+이러한 상황에 immer 라는 라이브러리를 사용하면, 구조가 복잡한 객체도 매우 쉽고 짧은 코드를 사용하여 불변성을 유지하면서 업데이트해 줄 수 있습니다.  
+```bash
+$ yarn add immer
+```
+```javascript
+import produce from 'immer';
+
+const nextState = produce(originalState, draft => {
+	// 바꾸고 싶은 값 바꾸기
+	draft.somewhere.deep.inside = 5;
+});
+```
+> produce 라는 함수는 두 가지 파라미터를 받습니다.  
+첫 번째 파라미터는 수정하고 싶은 상태이고,  
+두 번째 파라미터는 상태를 어떻게 업데이트할지 정의하는 함수입니다.  
+두 번째 파라미터로 전달되는 함수 내부에서 원하는 값을 변경하면, produce 함수가 불변성 유지를 대신해 주면서 새로운 상태를 생성해 줍니다.  
+
+```javascript
+import produce from 'immer';
+
+const originalState = [
+	{
+		id: 1,
+		todo: 'test1',
+		checked: true,
+	},
+	{
+		id: 2,
+		todo: 'test2',
+		checked: false,
+	},
+];
+
+const nextState = produce(originalState, draft => {
+	// id 가 2 인 항목의 checked 값을 true 로 설정
+	const todo = draft.find(value => value.id === 2); // id 로 항목 찾기
+	todo.checked = true;
+
+	// 배열에 새로운 데이터 추가
+	draft.push({
+		id: 3,
+		todo: 'test3',
+		checked: false,
+	});
+
+	// id === 1 인 항목을 제거하기
+	draft.splice(draft.findIndex(t => t.id === 1), 1);
+});
+```
+
+-----
 
 ## Context API
 Context API 는 리액트 프로젝트에서 전역적으로 사용할 데이터가 있을 때 유용한 기능입니다.  
@@ -913,9 +1004,21 @@ const App = () => {
 export default App;
 ```
 
-
+-----
 
 ## 리덕스 라이브러리 
+```bash
+$ yarn add redux
+```
+리덕스 개발자 도구 라이브러리
+```bash
+$ yarn add redux-devtools-extension
+```
+리덕스 로그 출력 미들웨어 라이브러리
+```bash
+$ yarn add redux-logger
+```
+
 - 액션  
 상태에 어떠한 변화가 필요하면 액션(action)이란 것이 발생합니다.  
 액션 객체는 type 필드를 반드시 가지고 있어야 합니다.  
@@ -1001,16 +1104,15 @@ unsubscribe(); // 추후 구독을 비활성화할 때 함수를 호출
     - 리덕스 스토어와 연동된 컴포넌트 
 6. App 에서 CounterContainer 를 렌더링
 
+-----
 
-> redux-actions  
-redux-actions 를 사용하면 액션 생성 함수를 더 짧은 코드로 작성할 수 있습니다.  
+## redux-actions  
+`redux-actions 를 사용하면 액션 생성 함수를 더 짧은 코드로 작성할 수 있습니다.`   
 그리고 리듀서를 작성할 때도 switch/case 문이 아닌 handleActions 라는 함수를 사용하여 각 액션마다 업데이트 함수를 설정하는 형식으로 작성해 줄 수 있습니다.
 ```
 $ yarn add redux-actions
 ```
 (Typescript - https://github.com/piotrwitek/typesafe-actions)  
-
------
 
 ```javascript
 // modules/counter.js
@@ -1210,20 +1312,317 @@ export default App;
 
 
 ## redux-trunk
-redux-trunk 는 리덕스를 사용하는 프로젝트에서 비동기 작업을 처리할 때 가장 기본적으로 사용하는 미들웨어 입니다.  
+redux-trunk 는 리덕스를 사용하는 프로젝트에서 `비동기 작업을 처리할 때 가장 기본적으로 사용하는 미들웨어` 입니다.  
 Trunk 는 특정 작업을 나중에 할 수 있도록 미루기 위해 함수 형태로 감싼 것을 의미합니다.
 
+
 ## redux-saga
-redux-saga 는 redux-trunk 다음으로 많이 사용하는 비동기 작업 관련 미들웨어 입니다.  
+redux-saga 는 redux-trunk 다음으로 많이 사용하는 `비동기 작업 관련 미들웨어` 입니다.  
 - 기존 요청을 취소해야할 때(불필요한 중복 요청 방지)  
 - 특정 액션이 발생했을 때 다른 액션을 발생시키거나, API 요청 등 리덕스와 관계없는 코드를 실행할 때  
 - 웹소켓을 사용할 때
 - API 요청 실패 시 재요청해야 할 때  
-(redux-saga 에서는 ES6 의 제너레이터 함수라는 문법을 사용합니다.)
-```javascript
 
+redux-saga 에서는 ES6 의 제너레이터 함수라는 문법을 사용합니다.
+```javascript
+// 제너레이터 
+// 제너레이터 함수를 사용하면 함수에서 값을 순차적으로 반환할 수 있습니다.
+// 심지어 함수의 흐름을 도중에 멈춰 놓았다가 다시 이어서 진행시킬 수도 있죠.
+function* generatorFunction() {
+	console.log('첫 번째 실행');
+	yield 1; // 첫번째 next 호출 시에 이 지점까지 실행된다.
+	console.log('두 번쨰 실행');
+	yield 2; // 두번째 next 호출 시에 이 지점까지 실행된다.
+	console.log('세 번째 실행');
+	yield 3; // 세번째 next 호출 시에 이 지점까지 실행된다.
+
+	return 4; // 제너레이터 함수 종료
+}
+
+// 제너레이터 생성
+// 제너레이터 함수를 호출했을 때 반환되는 객체를 제너레이터 라고 부릅니다.
+const generator = generatorFunction();
+
+generator.next();
+// 첫 번째 실행
+// { value: 1, done: false }
+
+generator.next();
+// 두 번째 실행
+// { value: 2, done: false }
+
+generator.next();
+// 세 번째 실행
+// { value: 3, done: false }
+
+generator.next();
+// { value: 4, done: true }
+
+generator.next();
+// { value: undefined, done: true }
 ```
 
+next() 가 호출되면 다음 yield 가 있는 곳까지 호출하고 다시 함수가 멈춥니다.  
+next() 함수에 파라미터를 넣으면 제너레이터 함수에서 yield를 사용하여 해당 값을 조회할 수도 있습니다.  
+```javascript
+function* generatorSum() {
+	console.log('a + b 테스트');
+	
+	let a = yield;
+	let b = yield;
+
+	yield a + b;
+}
+const sum = generatorSum();
+sum.next();
+// a + b 테스트
+// { value: undefined, done: false }
+sum.next(1);
+// { value: undefined, done: false }
+sum.next(2);
+// { value: 3, done: false }
+```
+
+반복기
+```javascript
+function* createInfinityByGenerator() {
+	let i = 0;
+	while (true) { yield ++i; }
+}  
+for(const n of createInfinityByGenerator()) {
+	if (n > 5) break;
+	console.log('createInfinityByGenerator', n); // 1 2 3 4 5
+}
+
+function* counter() {
+	for (const v of [1, 2, 3]) yield v;
+}
+let generatorCounter = counter();
+for(const i of generatorCounter) {
+	console.log('generatorCounter', i); // 1 2 3
+}
+```
+
+redux-saga 작동원리
+```javascript
+function* generatorWatch() {
+	console.log('모니터링 중...');
+
+	let prevAction = null;
+	while(true) {
+		const action = yield;
+		console.log('이전 액션: ', prevAction);
+		prevAction = action;
+		if(action.type === 'HELLO') {
+			console.log('안녕하세요.');
+		}
+	}
+}
+const watch = generatorWatch();
+watch.next();
+// 모니터링 중...
+// { value: undefined, donw: false }
+watch.next({ type: 'TEST' });
+// 이전 액션: null
+// { value: undefined, donw: false }
+watch.next({ type: 'HELLO' });
+// 이전 액션: {type: 'TEST'}
+// 안녕하세요.
+// { value: undefined, donw: false }
+```
+
+`redux-saga 사용 예`
+액션 모듈
+```javascript
+// modules/counter.js
+import { createAction, handleActions } from 'redux-actions';
+import { delay, put, takeEvery, takeLatest } from 'redux-saga/effects';
+
+// 액션 타입
+const INCREASE = 'counter/INCREASE';
+const DECREASE = 'counter/DECREASE';
+const INCREASE_ASYNC = 'counter/INCREASE_ASYNC';
+const DECREASE_ASYNC = 'counter/DECREASE_ASYNC';
+
+// 액션 생성함수
+export const increase = createAction(INCREASE);
+export const decrease = createAction(DECREASE);
+// 마우스 클릭 이벤트가 payload 안에 들어가지 않도록
+// () => undefined 를 두 번째 파라미터로 넣어 줍니다.
+export const increaseAsync = createAction(INCREASE_ASYNC, () => undefined);
+export const decreaseAsync = createAction(DECREASE_ASYNC, () => undefined);
+
+// 비동기 처리가 필요한 것 - saga 적용
+function* increaseSaga() {
+	yield delay(1000); // 1초를 기다립니다. - 비동기 통신이 발생한 것을 가정
+	yield put(increase()); // 특정 액션을 디스패치 합니다.
+}
+function* decreaseSaga() {
+	yield delay(1000); // 1초를 기다립니다. - 비동기 통신이 발생한 것을 가정
+	yield put(decrease()); // 특정 액션을 디스패치 합니다.
+}
+export function* counterSaga() {
+	// takeEvery 는 들어오는 모든 액션에 대해 특정 작업을 처리해 줍니다.
+	// 즉, '+1' 버튼을 연속클릭하면 해당 작업이 모두 실행된다.
+	yield takeEvery(INCREASE_ASYNC, increaseSaga);
+
+	// takeLatest 는 기존에 진행 중이던 작업이 있다면 취소 처리하고
+	// 가장 마지막으로 실행된 작업만 수행합니다.
+	// 즉, '-1' 버튼을 연속클릭하면 마지막 작업이 실행되며 최종적으로 한번 실행한 효과가 된다.
+	yield takeLatest(DECREASE_ASYNC, decreaseSaga);
+}
+
+// 초기값
+const initialState = 0;
+
+// 액션 함수(리듀서)
+const counter = handleActions(
+	{
+		[INCREASE]: state => state + 1,
+		[DECREASE]: state => state - 1,
+	},
+	initialState
+);
+
+export default counter;
+```
+
+컨테이너 컴포넌트
+```javascript
+// containers/CounterContainer.js
+import React, { useCallback } from 'react';
+import { connect, useSelector, useDispatch } from 'react-redux'; 
+import Counter from '../components/Counter';
+import { increase, decrease, increaseAsync, decreaseAsync } from '../modules/counter';
+
+// 컨테이너 컴포넌트 - 동기 실행 관련 처리
+/*const CounterContainer = () => {
+	const number = useSelector(state => state.counter);
+	const dispatch = useDispatch();
+
+	// useCallback 를 통해 성능 최적화 가능
+	// 숫자가 바뀌어서 컴포넌트가 리렌더링될 때마다 onIncrease 함수와 onDecrease 함수가 새롭게 만들어지고 있으므로 최적화 필요
+	const onIncrease = useCallback(() => dispatch(increase()), [dispatch]);
+	const onDecrease = useCallback(() => dispatch(decrease()), [dispatch]);
+	return (
+		<Counter number={number} onIncrease={onIncrease} onDecrease={onDecrease} />
+	);
+};*/
+// 컨테이너 컴포넌트 - 비동기 실행 관련 처리
+const CounterContainer = () => {
+	const number = useSelector(state => state.counter);
+	const dispatch = useDispatch();
+
+	// useCallback 를 통해 성능 최적화 가능
+	// 숫자가 바뀌어서 컴포넌트가 리렌더링될 때마다 onIncrease 함수와 onDecrease 함수가 새롭게 만들어지고 있으므로 최적화 필요
+	const onIncrease = useCallback(() => dispatch(increaseAsync()), [dispatch]);
+	const onDecrease = useCallback(() => dispatch(decreaseAsync()), [dispatch]);
+	return (
+		<Counter number={number} onIncrease={onIncrease} onDecrease={onDecrease} />
+	);
+};
+
+export default CounterContainer;
+```
+
+프레젠테이셔널 컴포넌트
+```javascript
+// components/Counter.js
+import React from 'react';
+
+// 프레젠테이셔널 컴포넌트
+const Counter = ({ number, onIncrease, onDecrease }) => {
+	return (
+		<div>
+			<h1>{number}</h1>
+			<div>
+				<button onClick={onIncrease}>+1</button>
+				<button onClick={onDecrease}>-1</button>
+			</div>
+		</div>
+	);
+};
+
+export default Counter;
+```
+
+루트 리듀서 (루트 사가)
+```javascript
+// modules/index.js
+import { combineReducers } from 'redux';
+import { all } from 'redux-saga/effects';
+import counter, { counterSaga } from './counter';
+
+// 루트 리듀서
+const rootReducer = combineReducers({
+	counter,
+});
+
+// 루트 사가
+// 추후 다른 리듀서에서도 사가를 만들어 등록할 것
+export function* rootSaga() {
+	// all 함수는 여러 사가를 합쳐 주는 역할을 합니다.
+	yield all([
+		counterSaga()
+	]);
+}
+
+export default rootReducer;
+```
+
+App
+```javascript
+// App.js
+import React from 'react';
+import CounterContainer from './containers/CounterContainer';
+
+const App = () => {
+	return (
+		<div>
+			<CounterContainer />
+		</div>
+	);
+};
+
+export default App;
+```
+
+index.js
+```javascript
+// index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { createStore, applyMiddleware } from 'redux';
+import { Provider } from 'react-redux';
+import App from './redux-saga/App';
+import rootReducer, { rootSaga } from './redux-saga/modules/index';
+import { createLogger } from 'redux-logger';
+import createSagaMiddleware from 'redux-saga';
+
+// 미들웨어
+const logger = createLogger();
+const sagaMiddleware = createSagaMiddleware();
+
+// 스토어
+const store = createStore(
+	// 루트 리듀서 등록
+	rootReducer,
+	// 미들웨어 등록
+	applyMiddleware(logger, sagaMiddleware)
+);
+
+// 루트 사가 등록
+sagaMiddleware.run(rootSaga);
+
+ReactDOM.render(
+	<Provider store={store}>
+		<App />
+	</Provider>,
+	document.getElementById('root')
+);
+```
+
+-----
 
 ## 코드 스플리팅  
 - dynamic import  
