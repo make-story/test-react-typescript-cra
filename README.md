@@ -1122,6 +1122,7 @@ import { createAction, handleActions } from 'redux-actions'; // redux-actions �
 // '모듈이름/액션이름' 과 같은 형태로 작성 (나중에 프로젝트가 커졌을 때 액션의 이름이 출돌되지 않도록)
 const INCREASE = 'counter/INCREASE';
 const DECREASE = 'counter/DECREASE';
+const TEST = 'counter/TEST';
 
 // 2. 액션 생성 함수 만들기 - 액션 객체를 만들어 주는 함수입니다.
 /*
@@ -1169,6 +1170,11 @@ handleActions(
 */
 export const increase = createAction(INCREASE);
 export const decrease = createAction(DECREASE);
+export const test = createAction(TEST, value => {
+	// dispatch(test('값')); 디스패치 호출시 파라미터로 넘기는 값을 
+	// handleActions 에서 payload 값으로 받음
+	return value;
+});
 
 // 3. 초기 상태 값 (상태는 꼭 객체일 필요가 없습니다. initialState = 0 처럼 숫자값도 작동합니다.)
 const initialState = {
@@ -1191,6 +1197,12 @@ const counter = handleActions( // 각 액션에 대한 업데이트 함수
 			return { 
 				...state,
 				number: state.number - 1 
+			};
+		},
+		[TEST]: (state, { payload: value }) => {
+			console.log('dispatch 호출시 넘겨주는 값', value);
+			return {
+				...state,
 			};
 		},
 	},
@@ -1245,13 +1257,14 @@ ReactDOM.render(
 import React from 'react';
 
 // 프레젠테이셔널 컴포넌트 - 주로 상태 관리가 이루어지지 않고, 그저 props 를 받아 와서 화면에 UI를 보여주기만 하는 컴포넌트
-const Counter = ({ number, onIncrease, onDecrease }) => {
+const Counter = ({ number, onIncrease, onDecrease, onTest }) => {
 	return (
 		<div>
 			<h1>{number}</h1>
 			<div>
 				<button onClick={onIncrease}>+1</button>
 				<button onClick={onDecrease}>-1</button>
+				<button onClick={onTest}>테스트</button>
 			</div>
 		</div>
 	);
@@ -1265,7 +1278,7 @@ export default Counter;
 import React, { useCallback } from 'react';
 import { connect, useSelector, useDispatch } from 'react-redux'; 
 import Counter from '../components/Counter';
-import { increase, decrease } from '../modules/counter';
+import { increase, decrease, test } from '../modules/counter';
 
 // 컨테이너 컴포넌트 만들기 - 리덕스 스토어와 연동된 컴포넌트를 컨테이너 컴포넌트라고 부릅니다.
 const CounterContainer = () => {
@@ -1284,10 +1297,20 @@ const CounterContainer = () => {
 
 	// useCallback 를 통해 성능 최적화 가능
 	// 숫자가 바뀌어서 컴포넌트가 리렌더링될 때마다 onIncrease 함수와 onDecrease 함수가 새롭게 만들어지고 있으므로 최적화 필요
-	const onIncrease = useCallback(() => dispatch(increase()), [dispatch]);
-	const onDecrease = useCallback(() => dispatch(decrease()), [dispatch]);
+	const onIncrease = useCallback(
+		() => dispatch(increase()), 
+		[dispatch]
+	);
+	const onDecrease = useCallback(
+		() => dispatch(decrease()), 
+		[dispatch]
+	);
+	const onTest = useCallback(
+		() => dispatch(test('YSM TEST!!!')), 
+		[dispatch]
+	);
 	return (
-		<Counter number={number} onIncrease={onIncrease} onDecrease={onDecrease} />
+		<Counter number={number} onIncrease={onIncrease} onDecrease={onDecrease} onTest={onTest} />
 	);
 };
 
