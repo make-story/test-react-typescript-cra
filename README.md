@@ -1021,7 +1021,7 @@ $ yarn add redux-logger
 
 - 액션  
 상태에 어떠한 변화가 필요하면 액션(action)이란 것이 발생합니다.  
-액션 객체는 type 필드를 반드시 가지고 있어야 합니다.  
+`액션 객체는 type 필드를 반드시 가지고 있어야 합니다.`  
 이 값을 액션의 이름이라 생각하면 됩니다.  
 ```javascript
 {
@@ -1107,7 +1107,8 @@ unsubscribe(); // 추후 구독을 비활성화할 때 함수를 호출
 -----
 
 ## redux-actions  
-`redux-actions 를 사용하면 액션 생성 함수를 더 짧은 코드로 작성할 수 있습니다.`   
+`redux-actions 를 사용하면 액션 생성 함수를 더 짧은 코드로 작성할 수 있습니다.`  
+(TypeScript 지원을 위해서는 typesafe-actions 를 사용)   
 그리고 리듀서를 작성할 때도 switch/case 문이 아닌 handleActions 라는 함수를 사용하여 각 액션마다 업데이트 함수를 설정하는 형식으로 작성해 줄 수 있습니다.
 ```
 $ yarn add redux-actions
@@ -1126,6 +1127,7 @@ const TEST = 'counter/TEST';
 
 // 2. 액션 생성 함수 만들기 - 액션 객체를 만들어 주는 함수입니다.
 /*
+-
 createAction 으로 액션을 만들면,
 액션에 필요한 추가 데이터는 payload 라는 이름을 사용합니다.
 
@@ -1134,11 +1136,12 @@ const myAction = createAction(MY_ACTION);
 const action = myAction('hello world'); 
 // 결과 : 
 { 
-	type: MY_ACTION, 
+	type: MY_ACTION, // 액션 객체는 type 필드를 반드시 가지고 있어야 합니다.
 	payload: 'hello world' 
 }
 
 
+-
 액션 생성 함수에서 받아 온 파라미터를 그대로 payload 에 넣는 것이 아니라 변형을 주어서 넣고 싶다면,
 createAction 의 두 번째 파라미터에 payload 를 정의하는 함수를 따로 선언해서 넣어 주면 됩니다.
 
@@ -1644,6 +1647,74 @@ ReactDOM.render(
 	document.getElementById('root')
 );
 ```
+
+-----
+
+> https://ridicorp.com/story/how-to-use-redux-in-ridi/?utm_source=twitter&utm_medium=velopert&utm_campaign=how-to-use-redux-in-ridi
+
+## Redux Toolkit (TypeScript 지원)  
+https://redux-toolkit.js.org/  
+(Redux Toolkit을 사용하면 리듀서, 액션타입, 액션 생성함수, 초기상태를 하나의 함수로 편하게 선언)  
+```javascript 
+import { createSlice } from '@reduxjs/toolkit';
+
+// 리듀서와 액션 생성 함수를 한방에 만들 수 있음
+const msgboxSlice = createSlice({
+  name: 'msgbox',
+  initialState: {
+    open: false,
+    message: '',
+  },
+  reducers: {
+    open(state, action) {
+      state.open = true;
+      state.message = action.payload
+    },
+    close(state) {
+      state.open = false;
+    }
+  }
+});
+
+export default msgboxSlice;
+```
+
+> 리덕스를 사용 할 때, TypeScript를 사용하지 않으면,   
+우리가 컴포넌트에서 상태를 조회할때, 그리고 액션생성 함수를 사용 할 때 자동완성이 되지 않으므로 실수하기가 쉽습니다.
+
+```javascript
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+type MsgboxState = {
+  open: boolean;
+	message: string;
+}
+
+const initialState: MsgboxState = {
+  open: false,
+  message: ''
+};
+
+const msgboxSlice = createSlice({
+  name: 'msgbox',
+  initialState,
+  reducers: {
+    open(state, action: PayloadAction<string>) {
+      state.open = true;
+      state.message = action.payload;
+    },
+    close(state) {
+      state.open = false;
+    }
+  }
+});
+
+export default msgboxSlice;
+```
+
+
+## react-query
+https://github.com/tannerlinsley/react-query
 
 -----
 
