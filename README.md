@@ -108,7 +108,7 @@ $ yarn eject
 
 -----
 
-### 학습
+## 학습
 > `/src/react/bacics` 주석 참고
 
 - Props  
@@ -158,9 +158,7 @@ $ yarn eject
 
 ----------
 
-# 정리
-
-- 오해  
+## 오해  
 Virtual DOM을 사용한다고 해서 사용하지 않을 때와 비교하여 무조건 빠른 것은 아닙니다.  
 리액트 매뉴얼에는 다음 문장이 있습니다.
 > 우리는 다음 문제를 해결하려고 리액트를 만들었습니다.  
@@ -1654,7 +1652,8 @@ ReactDOM.render(
 
 ## Redux Toolkit (TypeScript 지원)  
 https://redux-toolkit.js.org/  
-(Redux Toolkit을 사용하면 리듀서, 액션타입, 액션 생성함수, 초기상태를 하나의 함수로 편하게 선언)  
+(Redux Toolkit을 사용하면 `리듀서, 액션타입, 액션 생성함수, 초기상태를 하나의 함수로 편하게 선언`) 
+
 ```javascript 
 import { createSlice } from '@reduxjs/toolkit';
 
@@ -1720,7 +1719,7 @@ https://github.com/tannerlinsley/react-query
 
 ## 코드 스플리팅  
 - dynamic import  
-import 를 상단에서 하지 않고 import() 함수 형태로 메서드 안에서 사용하면, 파일을 따로 분리시켜 저장합니다.  
+import 를 상단에서 하지 않고 `import() 함수 형태로 메서드 안에서 사용`하면, 파일을 따로 분리시켜 저장합니다.  
 그리고 실제 함수가 필요한 지점에 파일을 불러와서 함수를 사용할 수 있습니다.  
 이 함수를 통해 모듈을 불러올 때 모듈에서 default 로 내보낸 것은 result.default 를 참조해야 사용할 수 있습니다.  
 ```javascript
@@ -1773,7 +1772,7 @@ export default App;
 
 
 - Loadable Components 를 통한 코드 스플리팅  
-Loadable Components 는 코드 스플리팅을 편하게 하도록 도와주는 서드파티 라이브러리 입니다.  
+Loadable Components 는 `코드 스플리팅을 편하게 하도록 도와주는 서드파티 라이브러리` 입니다.  
 이 라이브러리의 이점은 서버 사이트 렌더링을 지원한다는 것입니다. 또한, 렌더링하기 전에 필요할 때 스플리팅된 파일을 미리 불러올 수 있는 기능도 있습니다.  
 ```javascript 
 import React from 'react';
