@@ -1,4 +1,4 @@
-# 가이드  
+# Typescript + React 가이드  
 https://fettblog.eu/typescript-react/
 
 - 추가 참고자료  
