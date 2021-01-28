@@ -1174,6 +1174,13 @@ export const decrease = createAction(DECREASE);
 export const test = createAction(TEST, value => {
 	// dispatch(test('값')); 디스패치 호출시 파라미터로 넘기는 값을 
 	// handleActions 에서 payload 값으로 받음
+	/*
+	import { useSelector, useDispatch } from 'react-redux'; 
+	import { increase, decrease, test } from '../modules/counter';
+	
+	const dispatch = useDispatch();
+	dispatch(test('payload value!'));
+	*/
 	return value;
 });
 
@@ -1648,31 +1655,38 @@ ReactDOM.render(
 
 -----
 
+## RIDI 참고 (리덕스를 사용할 때 고려하면 유용한 정보)  
 > https://ridicorp.com/story/how-to-use-redux-in-ridi/?utm_source=twitter&utm_medium=velopert&utm_campaign=how-to-use-redux-in-ridi
+
 
 ## Redux Toolkit (TypeScript 지원)  
 https://redux-toolkit.js.org/  
-(Redux Toolkit을 사용하면 `리듀서, 액션타입, 액션 생성함수, 초기상태를 하나의 함수로 편하게 선언`) 
+
+- Redux 와 비교
+Redux Toolkit을 사용하면 `리듀서, 액션타입, 액션 생성함수, 초기상태를 하나의 함수로 편하게 선언`  
+`Typescript 지원`  
+`Immer 가 내장`되어있기 때문에, 불변성을 유지하기 위하여 번거로운 코드들을 작성하지 않고 원하는 값을 직접 변경하면 알아서 불변셩 유지되면서 상태가 업데이트  
+
 
 ```javascript 
 import { createSlice } from '@reduxjs/toolkit';
 
 // 리듀서와 액션 생성 함수를 한방에 만들 수 있음
 const msgboxSlice = createSlice({
-  name: 'msgbox',
-  initialState: {
-    open: false,
-    message: '',
-  },
-  reducers: {
-    open(state, action) {
-      state.open = true;
-      state.message = action.payload
-    },
-    close(state) {
-      state.open = false;
-    }
-  }
+	name: 'msgbox',
+	initialState: {
+		open: false,
+		message: '',
+	},
+	reducers: {
+		open(state, action) {
+			state.open = true;
+			state.message = action.payload
+		},
+		close(state) {
+			state.open = false;
+		}
+	}
 });
 
 export default msgboxSlice;
@@ -1682,6 +1696,7 @@ export default msgboxSlice;
 우리가 컴포넌트에서 상태를 조회할때, 그리고 액션생성 함수를 사용 할 때 자동완성이 되지 않으므로 실수하기가 쉽습니다.
 
 ```javascript
+// Typescript 사용
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type MsgboxState = {
@@ -1714,6 +1729,31 @@ export default msgboxSlice;
 
 ## react-query
 https://github.com/tannerlinsley/react-query
+API 요청 관련  
+
+-----
+
+## Presentational & Container 분리는 이제 그만?
+Dan Abramov  
+https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0
+
+```javascript
+export default function ShopProducts() {
+	const loading = useSelector(state => state.shop.loading);
+	const products = useSelector(state => state.shop.products);
+	const dispatch = useDispatch();
+	useEffect(() => {
+		// products 조회 로직 ...
+	}, [dispatch])
+	const onPurchase = (product) => {
+		/* 결제 로직 ... */
+	};
+
+	return (
+		<div>{/* UI ... */}</div>
+	);
+}
+```
 
 -----
 
