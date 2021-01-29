@@ -1527,6 +1527,13 @@ export const increaseAsync = createAction(INCREASE_ASYNC, () => undefined);
 export const decreaseAsync = createAction(DECREASE_ASYNC, () => undefined);
 
 // 비동기 처리가 필요한 것 - saga 적용
+/*
+보통 2가지 함수 선언
+1. call, put 등 실제 비동기 실행이 이루어지는 함수 (제너레이터 함수 또는 일반 함수)
+2. takeEvery, takeLatest 등으로 액션타입(액션이름)과 실행 함수를 연결하는 제너레이터 함수
+
+액션이 실행되면 -> 미들웨어 동작(saga) 후 -> 리듀서(handleActions) -> 스토어 저장
+*/
 function* increaseSaga() {
 	yield delay(1000); // 1초를 기다립니다. - 비동기 통신이 발생한 것을 가정
 	yield put(increase()); // 특정 액션을 디스패치 합니다.
@@ -1538,11 +1545,13 @@ function* decreaseSaga() {
 export function* counterSaga() {
 	// takeEvery 는 들어오는 모든 액션에 대해 특정 작업을 처리해 줍니다.
 	// 즉, '+1' 버튼을 연속클릭하면 해당 작업이 모두 실행된다.
+	// INCREASE_ASYNC 액션이 디스패치되면 increaseSaga 미들웨어 실행
 	yield takeEvery(INCREASE_ASYNC, increaseSaga);
 
 	// takeLatest 는 기존에 진행 중이던 작업이 있다면 취소 처리하고
 	// 가장 마지막으로 실행된 작업만 수행합니다.
 	// 즉, '-1' 버튼을 연속클릭하면 마지막 작업이 실행되며 최종적으로 한번 실행한 효과가 된다.
+	// DECREASE_ASYNC 액션이 디스패치되면 decreaseSaga 미들웨어 실행
 	yield takeLatest(DECREASE_ASYNC, decreaseSaga);
 }
 
