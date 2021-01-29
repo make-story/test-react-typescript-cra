@@ -1505,6 +1505,8 @@ watch.next({ type: 'HELLO' });
 // { value: undefined, donw: false }
 ```
 
+-----
+
 `redux-saga 사용 예`  
 액션 모듈
 ```javascript
@@ -1526,7 +1528,7 @@ export const decrease = createAction(DECREASE);
 export const increaseAsync = createAction(INCREASE_ASYNC, () => undefined);
 export const decreaseAsync = createAction(DECREASE_ASYNC, () => undefined);
 
-// 비동기 처리가 필요한 것 - saga 적용
+// 비동기 처리가 필요한 것 - saga 생성
 /*
 보통 2가지 함수 선언
 1. call, put 등 실제 비동기 실행이 이루어지는 함수 (제너레이터 함수 또는 일반 함수)
@@ -1703,6 +1705,290 @@ ReactDOM.render(
 	</Provider>,
 	document.getElementById('root')
 );
+```
+
+-----
+
+`redux-saga 사용 예 (회원기입 비동기 통신)`  
+액션 모듈
+```javascript
+// modules/auth.js
+import { createAction, handleActions } from 'redux-actions';
+import produce from 'immer';
+import { takeLatest } from 'redux-saga/effects';
+import createRequestSaga from '../lib/createRequestSaga';
+import * as authAPI from '../lib/api/auth';
+
+const REGISTER = 'auth/REGISTER';
+const REGISTER_SUCCESS = 'auth/REGISTER_SUCCESS';
+const REGISTER_FAILURE = 'auth/REGISTER_FAILURE';
+const LOGIN = 'auth/LOGIN';
+const LOGIN_SUCCESS = 'auth/LOGIN_SUCCESS';
+const LOGIN_FAILURE = 'auth/LOGIN_FAILURE';
+
+export const register = createAction(REGISTER, ({ username, password }) => {
+	// authAPI.register 로 넘길 파라미터 값
+	return {
+		username,
+		password,
+	};
+});
+export const login = createAction(LOGIN, ({ username, password }) => {
+	// authAPI.login 로 넘길 파라미터 값
+	return {
+		username,
+		password,
+	};
+});
+
+// 비동기 처리가 필요한 것 - saga 생성
+const registerSaga = createRequestSaga(REGISTER, authAPI.register); // 제너레이터 함수 반환
+const loginSaga = createRequestSaga(LOGIN, authAPI.login); // 제너레이터 함수 반환
+export function* authSaga() {
+	// REGISTER 디스패치(실행)시 사가에서 액션을 태스크한 후 registerSaga 실행
+	yield takeLatest(REGISTER, registerSaga);
+	// LOGIN 디스패치(실행)시 사가에서 액션을 태스크한 후 loginSaga 실행
+	yield takeLatest(LOGIN, loginSaga);
+}
+
+const initialState = {
+	register: {
+		username: '',
+		password: '',
+		passwordConfirm: '',
+	},
+	login: {
+		username: '',
+		password: '',
+	},
+	auth: null,
+	authError: null,
+};
+
+const auth = handleActions(
+	{
+		// 회원가입 성공
+		[REGISTER_SUCCESS]: (state, { payload: auth }) => {
+			return {
+				...state,
+				authError: null,
+				auth,
+			};
+		},
+		// 회원가입 실패
+		[REGISTER_FAILURE]: (state, { payload: error }) => {
+			return {
+				...state,
+				authError: error,
+			};
+		},
+		// 로그인 성공
+		[LOGIN_SUCCESS]: (state, { payload: auth }) => {
+			return {
+				...state,
+				authError: null,
+				auth,
+			};
+		},
+		// 로그인 실패
+		[LOGIN_FAILURE]: (state, { payload: error }) => {
+			return {
+				...state,
+				authError: error,
+			};
+		},
+	},
+	initialState,
+);
+
+export default auth;
+```
+
+액션 모듈
+```javascript
+// modules/loading.js
+import { createAction, handleActions } from "redux-actions";
+
+const START_LOADING = 'loading/START_LOADING';
+const FINISH_LOADING = 'loading/FINISH_LOADING';
+
+/*
+요청을 위한 액션 타입을 payload로 설정합니다.
+(예: sample/GET_POST)
+*/
+
+export const startLoading = createAction(
+	START_LOADING,
+	requestType => {
+		console.log('startLoading', requestType);
+		return requestType; // 액션 타입(액션 이름)을 상태 키 값으로 사용
+	}, 
+);
+export const finishLoading = createAction(
+	FINISH_LOADING,
+	requestType => {
+		console.log('finishLoading', requestType);
+		return requestType; // 액션 타입(액션 이름)을 상태 키 값으로 사용
+	}, 
+);
+
+const initialState = {};
+
+const loading = handleActions(
+	{
+		[START_LOADING]: (state, action) => {
+			return {
+				...state,
+				[action.payload]: true,
+			};
+		},
+		[FINISH_LOADING]: (state, action) => {
+			return {
+				...state,
+				[action.payload]: false,
+			};
+		}
+	},
+	initialState,
+);
+
+export default loading;
+```
+
+사가 동작
+```javascript
+// lib/createRequestSaga
+import { call, put } from 'redux-saga/effects';
+import { startLoading, finishLoading } from '../modules/loading';
+
+// 사가 (제너레이터 함수 생성하여 반환)
+export default function createRequestSaga(type, reuqest) {
+	// type: 액션 타입(액션 이름)
+	console.log(`createRequestSaga type: ${type}`);
+	const SUCCESS = `${type}_SUCCESS`; // auth/REGISTER_SUCCESS, auth/LOGIN_SUCCESS
+	const FAILURE = `${type}_FAILURE`; // auth/REGISTER_FAILURE, auth/LOGIN_FAILURE
+
+	return function* (action) {
+		// 디스패치 - 로딩 시작 
+		yield put(startLoading(type)); 
+
+		try {
+			// call(비동기 실행함수, 함꼐 넘길 파라미터 값)
+			const response = yield call(reuqest, action.payload); 
+
+			// 디스패치
+			yield put({ 
+				type: SUCCESS, // 액션 타입
+				payload: response.data,
+			});
+		}catch(e) {
+			// 디스패치
+			yield put({ 
+				type: FAILURE, // 액션 타입 
+				payload: e,
+				error: true,
+			});
+		}
+
+		// 디스패치 - 로딩 끝
+		yield put(finishLoading(type)); 
+	}
+}
+```
+
+API 
+```javascript
+// lib/api/auth
+import client from './client';
+
+// 로그인
+export const login = ({ username, password }) => {
+	return client.post('/api/auth/login', { username, password });
+};
+
+// 회원가입
+export const register = ({ username, password }) => {
+	return client.post('/api/auth/register', { username, password });
+};
+
+// 로그인 상태 확인
+export const check = () => {
+	return client.get('/api/auth/check');
+};
+```
+
+AXIOS 공통 설정
+```javascript
+import axios from 'axios';
+
+const client = axios.create();
+
+/*
+-
+설정값 우선순위 
+인스턴스 호출 메서드 옵션 > 인스턴스.defaults 설정 옵션 > 인스턴스.create()에 설정된 옵션
+
+-
+axios 사용자 정의 인스턴스 기본 설정 예
+
+const client = axios.create();
+
+client.defaults.baseURL = 'https://api.example.com';
+client.defaults.headers.common['Authorization'] = AUTH_TOKEN;
+client.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+
+// 요청 인터셉터 추가
+client.interceptors.request.use(
+	function (config) {
+		// 요청을 보내기 전에 수행할 일
+		// ...
+		return config;
+	},
+	function (error) {
+		// 오류 요청을 보내기전 수행할 일
+		// ...
+		return Promise.reject(error);
+	}
+);
+
+// 응답 인터셉터 추가
+client.interceptors.response.use(
+	function (response) {
+		// 응답 데이터를 가공
+		// ...
+		return response;
+	},
+	function (error) {
+		// 오류 응답을 처리
+		// ...
+		return Promise.reject(error);
+	}
+);
+*/
+
+export default client;
+```
+
+index.js
+```javascript
+// index.js
+import { combineReducers } from 'redux';
+import { all } from 'redux-saga/effects';
+import auth, { authSaga } from './auth';
+import loading from './loading';
+
+const rootReducer = combineReducers({
+	auth,
+	loading,
+});
+
+export function* rootSaga() {
+	yield all([
+		authSaga(),
+	]);
+}
+
+export default rootReducer;
 ```
 
 -----
