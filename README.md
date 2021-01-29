@@ -8,6 +8,12 @@ https://www.tsx.guide/introduction/welcome
 https://fettblog.eu/typescript-react/  
 https://fettblog.eu/typescript-react-component-patterns/  
 
+> 리액트 프로젝트 개발 흐름  
+1. 기능 설계하기 : 어떤 컴포넌트가 필요할지 생각합니다.  
+2. UI 만들기 : 사용자에게 보이는 UI를 먼저 만듭니다.
+3. API 연동하기 : API 연동이 필요한 경우 필요한 코드를 준비합니다.  
+4. 상태 관리하기 : 리덕스, 컴포넌트 자체 상태 등을 통해 상태를 관리하고, 필요하면 컨테이너 컴포넌트를 새로 만듭니다.  
+(성능상에 문제가 되는 부분은 shouldComponentUpdate 또는 React.memo 를 사용)  
 
 -----
 
@@ -1092,7 +1098,7 @@ unsubscribe(); // 추후 구독을 비활성화할 때 함수를 호출
 액션 타입, 액션 생성 함수, 리듀서 함수를 기능별로 파일 하나에 몰아서 다 작성하는 방식입니다.  
 
 
-- 리덕스 설계 순서
+- `리덕스 설계 순서`
 1. modules/counter 리덕스 모듈 만들기 
     - 상태 정의
 2. modules/index 루트 리듀서 만들기 
