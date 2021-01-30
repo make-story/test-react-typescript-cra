@@ -1010,6 +1010,22 @@ export default App;
 
 -----
 
+## FSA(Flux Standard Action)
+https://github.com/redux-utilities/flux-standard-action  
+
+객체는 액션을 구분할 고유한 문자열을 가진 type 필드가 반드시 있으며,   
+payload 필드에 데이터를 담아 전달한다.   
+그 외에 meta, error 필드를 가질 수도 있다.
+```javascript
+{
+	type: 'number/increment',
+	payload: {
+		amount: 1
+	}
+}
+```
+-----
+
 ## 리덕스 라이브러리 
 ```bash
 $ yarn add redux
@@ -1184,8 +1200,8 @@ handleActions(
 export const increase = createAction(INCREASE);
 export const decrease = createAction(DECREASE);
 export const test = createAction(TEST, value => {
-	// dispatch(test('값')); 디스패치 호출시 파라미터로 넘기는 값을 
-	// handleActions 에서 payload 값으로 받음
+	// payload
+	// dispatch(test('값')); 디스패치 호출시 파라미터로 넘기는 값을 handleActions 에서 payload 값으로 받음
 	/*
 	import { useSelector, useDispatch } from 'react-redux'; 
 	import { increase, decrease, test } from '../modules/counter';
@@ -1733,6 +1749,7 @@ const LOGIN_SUCCESS = 'auth/LOGIN_SUCCESS';
 const LOGIN_FAILURE = 'auth/LOGIN_FAILURE';
 
 export const register = createAction(REGISTER, ({ username, password }) => {
+	// payload
 	// authAPI.register 로 넘길 파라미터 값
 	return {
 		username,
@@ -1740,6 +1757,7 @@ export const register = createAction(REGISTER, ({ username, password }) => {
 	};
 });
 export const login = createAction(LOGIN, ({ username, password }) => {
+	// payload
 	// authAPI.login 로 넘길 파라미터 값
 	return {
 		username,
@@ -1823,20 +1841,16 @@ const FINISH_LOADING = 'loading/FINISH_LOADING';
 (예: sample/GET_POST)
 */
 
-export const startLoading = createAction(
-	START_LOADING,
-	requestType => {
-		console.log('startLoading', requestType);
-		return requestType; // 액션 타입(액션 이름)을 상태 키 값으로 사용
-	}, 
-);
-export const finishLoading = createAction(
-	FINISH_LOADING,
-	requestType => {
-		console.log('finishLoading', requestType);
-		return requestType; // 액션 타입(액션 이름)을 상태 키 값으로 사용
-	}, 
-);
+export const startLoading = createAction(START_LOADING, requestType => {
+	// payload
+	console.log('startLoading', requestType);
+	return requestType; // 액션 타입(액션 이름)을 상태 키 값으로 사용
+});
+export const finishLoading = createAction(FINISH_LOADING, requestType => {
+	// payload
+	console.log('finishLoading', requestType);
+	return requestType; // 액션 타입(액션 이름)을 상태 키 값으로 사용
+});
 
 const initialState = {};
 
