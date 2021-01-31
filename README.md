@@ -1406,11 +1406,211 @@ export default App;
 리듀서가 액션을 처리하기 전에 미들웨어가 할 수 있는 작업은 여러 가지가 있습니다.  
 전달받은 액션을 단순히 콘솔에 기록하거나, 전달받은 액션 정보를 기반으로 액션을 아예 취소하거나 다른 종류의 액션을 추가로 디스패치할 수 있습니다.  
 
+-----
 
 ## redux-trunk
 redux-trunk 는 리덕스를 사용하는 프로젝트에서 `비동기 작업을 처리할 때 가장 기본적으로 사용하는 미들웨어` 입니다.  
 Trunk 는 특정 작업을 나중에 할 수 있도록 미루기 위해 함수 형태로 감싼 것을 의미합니다.
 
+액션 모듈
+```javascript
+// modules/users.js
+import axios from 'axios';
+
+const GET_USERS_PENDING = 'users/GET_USERS_PENDING';
+const GET_USERS_SUCCESS = 'users/GET_USERS_SUCCESS';
+const GET_USERS_FAILURE = 'users/GET_USERS_FAILURE';
+
+const getUsersPending = () => ({ type: GET_USERS_PENDING });
+const getUsersSuccess = payload => ({ type: GET_USERS_SUCCESS, payload });
+const getUsersFailure = payload => ({
+	type: GET_USERS_FAILURE,
+	error: true,
+	payload
+});
+
+// 비동기 사용 - trunk 방식
+export const getUsers = () => async dispatch => {
+	try {
+		dispatch(getUsersPending());
+		const response = await axios.get('https://jsonplaceholder.typicode.com/users');
+		dispatch(getUsersSuccess(response));
+	}catch (e) {
+		dispatch(getUsersFailure(e));
+		throw e;
+	}
+};
+
+const initialState = {
+	users: null,
+	loading: {
+		users: false,
+		user: false
+	},
+	error: {
+		users: null,
+		user: null
+	}
+};
+
+function users(state = initialState, action) {
+	switch (action.type) {
+		case GET_USERS_PENDING:
+			return {
+				...state,
+				loading: { ...state.loading, users: true },
+				error: { ...state.error, users: null }
+			};
+		case GET_USERS_SUCCESS:
+			return {
+				...state,
+				loading: { ...state.loading, users: false },
+				users: action.payload.data
+			};
+		case GET_USERS_FAILURE:
+			return {
+				...state,
+				loading: { ...state.loading, users: false },
+				error: { ...state.error, users: action.payload }
+			};
+		default:
+			return state;
+		}
+}
+
+export default users;
+```
+
+컨테이너 컴포넌트
+```javascript
+// containers/UsersContainer.js
+import React from 'react';
+import Users from '../components/Users';
+import { connect } from 'react-redux';
+import { getUsers } from '../modules/users';
+
+const { useEffect } = React;
+
+const UsersContainer = ({ users, getUsers }) => {
+	// 컴포넌트 마운트될 때 호출
+	useEffect(() => {
+		if (users) return; // users가 이미 유효하다면 요청하지 않음
+		getUsers();
+	}, [getUsers, users]);
+
+	return (
+		<>
+			<Users users={users} />
+		</>
+	);
+};
+
+export default connect(
+	state => ({
+		users: state.users.users
+	}),
+	{
+		getUsers
+	}
+)(UsersContainer);
+```
+
+프레젠테이셔널 컴포넌트
+```javascript
+// components/Users.js
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+const Users = ({ users }) => {
+	if (!users) return null; // users가 유효하지 않다면 아무것도 보여주지 않음
+	return (
+		<div>
+			<ul>
+				{users.map(user => (
+					<li key={user.id}>
+						<Link to={`/users/${user.id}`}>{user.username}</Link>
+					</li>
+				))}
+			</ul>
+		</div>
+	);
+};
+
+export default Users;
+```
+
+루트 리듀서
+```javascript
+// modules/index.js
+import { combineReducers } from 'redux';
+import users from './users';
+
+const rootReducer = combineReducers({ users });
+
+export default rootReducer;
+```
+
+App
+```javascript
+import React from 'react';
+import { Route } from 'react-router-dom';
+import UsersPage from './pages/UsersPage';
+
+function App() {
+	return (
+		<div>
+			<Route path="/users" component={UsersPage} />
+		</div>
+	);
+}
+
+export default App;
+```
+
+Pages
+```javascript
+// pages/UsersPage.js
+import React from 'react';
+import UsersContainer from '../containers/UsersContainer';
+
+const UsersPage = () => {
+	return <UsersContainer />;
+};
+
+export default UsersPage;
+```
+
+index.js
+```javascript
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import { BrowserRouter } from 'react-router-dom';
+import { createStore, applyMiddleware } from 'redux';
+import { Provider } from 'react-redux';
+import thunk from 'redux-thunk';
+import rootReducer from './modules/index';
+
+const store = createStore(rootReducer, applyMiddleware(thunk));
+
+/*
+https://ko.reactjs.org/docs/strict-mode.html
+StrictMode는 애플리케이션 내의 잠재적인 문제를 알아내기 위한 도구입니다. 
+Fragment와 같이 UI를 렌더링하지 않으며, 자손들에 대한 부가적인 검사와 경고를 활성화합니다.
+*/
+ReactDOM.render(
+	<React.StrictMode>
+		<Provider store={store}>
+			<BrowserRouter>
+				<App />
+			</BrowserRouter>
+		</Provider>
+	</React.StrictMode>,
+	document.getElementById('root')
+);
+```
+
+-----
 
 ## redux-saga
 redux-saga 는 redux-trunk 다음으로 많이 사용하는 `비동기 작업 관련 미들웨어` 입니다.  
