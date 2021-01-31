@@ -162,7 +162,78 @@ $ yarn eject
 - StyledComponents  
 `styles/StyledComponents`  
 
-----------
+-----
+
+## React.memo
+
+```javascript
+import React, { useState, useCallback, useEffect } from 'react';
+
+// React.memo를 사용하여 tag 값이 바뀔 때만 리렌더링되도록 처리 - 컴포넌트
+const TagItem = React.memo(({ tag, onRemove, onChangeTags }) => (
+	<div onClick={() => onRemove(tag)}>#{tag}</div>
+));
+
+// React.memo를 사용하여 tags 값이 바뀔 때만 리렌더링되도록 처리 - 컴포넌트
+const TagList = React.memo(({ tags, onRemove }) => (
+	<div>
+		{tags.map(tag => (
+			<TagItem key={tag} tag={tag} onRemove={onRemove} />
+		))}
+	</div>
+));
+
+const TagBox = ({ tags, onChangeTags }) => {
+	const [input, setInput] = useState('');
+	const [localTags, setLocalTags] = useState([]);
+
+	const insertTag = useCallback(tag => {
+		if(!tag) return; // 공백이라면 추가하지 않음
+		if(localTags.includes(tag)) return; // 이미 존재한다면 추가하지 않음
+	
+		const nextTags = [...localTags, tag];
+		setLocalTags(nextTags);
+		onChangeTags(nextTags);
+	}, [localTags, onChangeTags]);
+
+	const onRemove = useCallback(tag => {
+		const nextTags = localTags.filter(t => t !== tag);
+		setLocalTags(nextTags);
+		onChangeTags(nextTags);
+	}, [localTags, onChangeTags]);
+
+	const onChange = useCallback(event => {
+		setInput(event.target.value);
+	}, []);
+
+	const onSubmit = useCallback(event => {
+		event.preventDefault();
+
+		insertTag(input.trim()); // 앞뒤 공백 없앤 후 등록
+		setInput(''); // input 초기화
+	}, [input, insertTag]);
+
+	// tags 값이 바뀔 때
+	useEffect(() => {
+		setLocalTags(tags);
+	}, [tags]);
+
+	return (
+		<div>
+			<h4>태그</h4>
+			<form onSubmit={onSubmit}>
+				<input placeholder="태그를 입력하세요" value={input} onChange={onChange} />
+				<button type="submit">추가</button>
+			</form>
+			<TagList tags={localTags} onRemove={onRemove} />
+		</div>
+	);
+};
+
+export default TagBox;
+```
+
+-----
 
 ## 오해  
 Virtual DOM을 사용한다고 해서 사용하지 않을 때와 비교하여 무조건 빠른 것은 아닙니다.  
