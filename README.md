@@ -1732,7 +1732,7 @@ ReactDOM.render(
 -----
 
 `redux-saga 사용 예 (회원기입 비동기 통신)`  
-액션 모듈
+액션 모듈 (auth)  
 ```javascript
 // modules/auth.js
 import { createAction, handleActions } from 'redux-actions';
@@ -1828,7 +1828,7 @@ const auth = handleActions(
 export default auth;
 ```
 
-액션 모듈
+액션 모듈 (loading)  
 ```javascript
 // modules/loading.js
 import { createAction, handleActions } from "redux-actions";
@@ -1875,22 +1875,22 @@ const loading = handleActions(
 export default loading;
 ```
 
-사가 동작
+사가 동작 (로딩시작 - 비동기통신 - 로딩끝)  
 ```javascript
 // lib/createRequestSaga
 import { call, put } from 'redux-saga/effects';
 import { startLoading, finishLoading } from '../modules/loading';
 
 // 사가 (제너레이터 함수 생성하여 반환)
-export default function createRequestSaga(type, reuqest) {
-	// type: 액션 타입(액션 이름)
-	console.log(`createRequestSaga type: ${type}`);
-	const SUCCESS = `${type}_SUCCESS`; // auth/REGISTER_SUCCESS, auth/LOGIN_SUCCESS
-	const FAILURE = `${type}_FAILURE`; // auth/REGISTER_FAILURE, auth/LOGIN_FAILURE
+export default function createRequestSaga(actionType, reuqest) {
+	// actionType: 액션 타입(액션 이름)
+	console.log(`createRequestSaga actionType: ${actionType}`);
+	const SUCCESS = `${actionType}_SUCCESS`; // auth/REGISTER_SUCCESS, auth/LOGIN_SUCCESS
+	const FAILURE = `${actionType}_FAILURE`; // auth/REGISTER_FAILURE, auth/LOGIN_FAILURE
 
 	return function* (action) {
 		// 디스패치 - 로딩 시작 
-		yield put(startLoading(type)); 
+		yield put(startLoading(actionType)); 
 
 		try {
 			// call(비동기 실행함수, 함꼐 넘길 파라미터 값)
@@ -1911,7 +1911,7 @@ export default function createRequestSaga(type, reuqest) {
 		}
 
 		// 디스패치 - 로딩 끝
-		yield put(finishLoading(type)); 
+		yield put(finishLoading(actionType)); 
 	}
 }
 ```
