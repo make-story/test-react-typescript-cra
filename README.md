@@ -8,6 +8,9 @@ https://www.tsx.guide/introduction/welcome
 https://fettblog.eu/typescript-react/  
 https://fettblog.eu/typescript-react-component-patterns/  
 
+> 리액트 개발자 도구  
+크롬 웹 스토어 `React Developer Tools`  
+
 -----
 
 # 리액트 프로젝트 개발 설계  
@@ -20,6 +23,8 @@ API 연동이 필요한 경우 필요한 코드를 준비합니다.
 4. 상태 관리하기 :  
 리덕스, 컴포넌트 자체 상태 등을 통해 상태를 관리하고, 필요하면 컨테이너 컴포넌트를 새로 만듭니다.  
 (성능상에 문제가 되는 부분은 shouldComponentUpdate 또는 React.memo 를 사용)  
+
+* *UI 구조파악/설계 -> 하나의 파일에서 점진적 영역분리
 
 ## 예를 들어 `Todo 프로젝트 설계 순서`
 1. App 컴포넌트 초기화(App.js 생성), UI 구조 설계
@@ -516,6 +521,7 @@ export default InterationSample;
 이 메서드들은 우리가 컴포넌트 클래스에서 덮어 써 선언함으로써 사용할 수 있습니다.  
 라이프사이클은 총 세 가지, 즉 `마운트`, `업데이트`, `언마운트` 카테고리로 나눕니다.  
 
+
 - 마운트  
 DOM 이 생성되고 웹 브라우저상에 나타나는 것을 `마운트(mount)`라고 합니다.  
 	- constructor : 컴포넌트를 새로 만들 때마다 호출되는 클래스 생성자 메서드 입니다.
@@ -523,12 +529,13 @@ DOM 이 생성되고 웹 브라우저상에 나타나는 것을 `마운트(mount
 	- render : 우리가 준비한 UI를 렌더링하는 메서드 입니다.
 	- componentDidMount : 컴포넌트가 웹 브라우저상에 나타난 후 호출하는 메서드 입니다.
 
+
 - 업데이트  
-컴포넌트는 다음과 같은 총 네 가지 경우에 업데이트 합니다.
-1. props 가 바뀔 때
-2. state 가 바뀔 때
-3. 부모 컴포넌트가 리렌더링될 때
-4. this.forceUpdate 로 강제로 렌더링을 트리거할 때   
+컴포넌트는 다음과 같은 총 네 가지 경우에 업데이트(리렌더링) 합니다.  
+1. props 가 바뀔 때 (자신이 전달받은 props가 변경될 때)  
+2. state 가 바뀔 때 (자신의 state가 바뀔 때)  
+3. 부모 컴포넌트가 리렌더링될 때  
+4. this.forceUpdate 로 강제로 렌더링을 트리거할 때 (forceUpdate 함수가 실행될 때)  
 
 이렇게 컴포넌트를 업데이트할 떄는 다음 메서드를 호출 합니다.   
 	- getDericedStateFromPops  
@@ -536,6 +543,7 @@ DOM 이 생성되고 웹 브라우저상에 나타나는 것을 `마운트(mount
 	- render  
 	- getSnapshotBeforeUpdate  
 	- componentDidUpdate  
+
 
 - 언마운트  
 마운트의 반대 과정, 즉 컴포넌트를 DOM에서 제거하는 것을 언마운트(unmount)라고 합니다.  
@@ -684,7 +692,8 @@ export default Average;
 이 Hook 을 사용하면 이벤트 핸들러 함수를 필요할 때만 생성할 수 있습니다.  
 이벤트 핸들러 함수들은 컴포넌트가 리렌더링될 때마다 새로 생성됩니다. 대부분의 경우 이러한 방식은 문제가 없지만, 컴포넌트의 렌더링이 자주 발생하거나 렌더링해야 할 컴포넌트 개수가 많이지면 이 부분을 최적화해 주는 것이 좋습니다.
 
-`숫자, 문자열, 객체처럼 일반 값을 재사용하려면 useMemo 를 사용하고, 함수를 재사용하려면 useCallback 을 사용하세요.`
+`숫자, 문자열, 객체처럼 일반 값을 재사용하려면 useMemo 를 사용하고,`   
+`함수를 재사용하려면 useCallback 을 사용하세요.`
 
 ```javascript
 import React, { useState, useMemo, useCallback } from 'react';
@@ -869,22 +878,54 @@ const [loading, response, error] = usePromise(() => {
 
 -----
 
-# classnames  
-classnames 는 CSS 클래스를 조건부로 설정할 때 매우 유용한 라이브러리입니다.  
-또한, CSS Module을 사용할 때 이 라이브러리를 사용하면 여러 클래스를 적용할 때 매우 편리합니다.  
-```
-$ yarn add classnames
-```
+# 불변성의 중요성
+기존의 값을 직접 수정하지 않으면서 새로운 값을 만들어 내는 것을 '불변성을 지킨다'라고 합니다.
 ```javascript
-import classNames from 'classnames';
+const array = [1, 2, 3, 4, 5];
 
-classNames('one', 'two'); // = 'one two'
-classNames('one', { two: true }); // = 'one two'
-classNames('one', { two: false }); // = 'one'
-classNames('one', ['two', 'three']); // = 'one two three'
+const nextArrayBad = array; // 배열을 복사하는 것이 아니라 똑같은 배열을 가리킵니다.
+nextArrayBad[0] = 100;
+console.log(array === nextArrayBad); // 완전히 똑같은 배열이기 때문에 true
 
-const myClass = 'hello';
-classNames('one', 'myClass', { myCondition: true }); // = 'one hello myCondition'
+const nextArrayGood = [ ...array ]; // 배열 내부의 값을 모두 복사합니다.
+nextArrayGood[0] = 100;
+console.log(array === nextArrayGood); // 다른 배열이기 때문에 false
+
+const object = {
+	foo: 'bar',
+	value: 1
+};
+
+const nextObjectBad = object; // 객체가 복사되지 않고, 똑같은 객체를 가리킵니다.
+nextObjectBad.value = nextObjectBad.value + 1;
+console.log(object === nextObjectBad); // 같은 객체이기 때문에 true
+
+const nextObjectGood = {
+	...object, // 기존에 있던 내용을 모두 복사해서 넣습니다.
+	value: object.value + 1 // 새로운 값을 덮어 씁니다.
+};
+console.log(object === nextObjectGood); // 다른 객체이기 때문에 false
+```
+`불변성이 지켜지지 않으면 객체 내부의 값이 새로워져도 바뀐 것을 감지하지 못합니다.`  
+
+전개 연산자(...문법)를 사용하여 객체나 배열 내부의 값을 복사할 떄는 얕은 복사(shallow copy)를 하게 됩니다.  
+즉, 내부의 값이 완전히 새로 복사되는 것이 아니라 가장 바깥쪽에 있는 값만 복사됩니다.  
+따라서 `내부의 값이 객체 혹은 배열이라면 내부의 값 또한 따로 복사해주어야 합니다.`  
+```javascript
+const todos = [
+	{ id: 1, checked: true },
+	{ id: 2, checked: false },
+];
+const nextTodos = [ ...todos ];
+
+nextTodos[0].checked = false;
+console.log(todos[0] === nextTodos[0]); // 아직까지는 똑같은 객체를 가리키고 있기 때문에 true
+
+nextTodos[0] = {
+	...nextTodos[0],
+	checked: false
+};
+console.log(todos[0] === nextTodos[0]); // 새로운 객체를 할당해 주었기에 false
 ```
 
 -----
@@ -2330,3 +2371,73 @@ export function* rootSaga() {
 export default rootReducer;
 ```
 
+
+-----
+
+
+## Redux Toolkit (TypeScript 지원)  
+https://redux-toolkit.js.org/  
+
+- Redux 와 비교
+Redux Toolkit을 사용하면 `리듀서, 액션타입, 액션 생성함수, 초기상태를 하나의 함수로 편하게 선언`  
+`Typescript 지원`  
+`Immer 가 내장`되어있기 때문에, 불변성을 유지하기 위하여 번거로운 코드들을 작성하지 않고 원하는 값을 직접 변경하면 알아서 불변셩 유지되면서 상태가 업데이트  
+
+
+```javascript 
+import { createSlice } from '@reduxjs/toolkit';
+
+// 리듀서와 액션 생성 함수를 한방에 만들 수 있음
+const msgboxSlice = createSlice({
+	name: 'msgbox',
+	initialState: {
+		open: false,
+		message: '',
+	},
+	reducers: {
+		open(state, action) {
+			state.open = true;
+			state.message = action.payload
+		},
+		close(state) {
+			state.open = false;
+		}
+	}
+});
+
+export default msgboxSlice;
+```
+
+> 리덕스를 사용 할 때, TypeScript를 사용하지 않으면,   
+우리가 컴포넌트에서 상태를 조회할때, 그리고 액션생성 함수를 사용 할 때 자동완성이 되지 않으므로 실수하기가 쉽습니다.
+
+```javascript
+// Typescript 사용
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+type MsgboxState = {
+  open: boolean;
+	message: string;
+}
+
+const initialState: MsgboxState = {
+  open: false,
+  message: ''
+};
+
+const msgboxSlice = createSlice({
+  name: 'msgbox',
+  initialState,
+  reducers: {
+    open(state, action: PayloadAction<string>) {
+      state.open = true;
+      state.message = action.payload;
+    },
+    close(state) {
+      state.open = false;
+    }
+  }
+});
+
+export default msgboxSlice;
+```
