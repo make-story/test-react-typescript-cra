@@ -8,12 +8,37 @@ https://www.tsx.guide/introduction/welcome
 https://fettblog.eu/typescript-react/  
 https://fettblog.eu/typescript-react-component-patterns/  
 
-> 리액트 프로젝트 개발 흐름  
-1. 기능 설계하기 : 어떤 컴포넌트가 필요할지 생각합니다.  
-2. UI 만들기 : 사용자에게 보이는 UI를 먼저 만듭니다.
-3. API 연동하기 : API 연동이 필요한 경우 필요한 코드를 준비합니다.  
-4. 상태 관리하기 : 리덕스, 컴포넌트 자체 상태 등을 통해 상태를 관리하고, 필요하면 컨테이너 컴포넌트를 새로 만듭니다.  
+-----
+
+# 리액트 프로젝트 개발 설계  
+1. 기능 설계하기 :   
+어떤 컴포넌트가 필요할지 생각합니다.  
+2. UI 만들기 :  
+사용자에게 보이는 UI를 먼저 만듭니다.
+3. API 연동하기 :  
+API 연동이 필요한 경우 필요한 코드를 준비합니다.  
+4. 상태 관리하기 :  
+리덕스, 컴포넌트 자체 상태 등을 통해 상태를 관리하고, 필요하면 컨테이너 컴포넌트를 새로 만듭니다.  
 (성능상에 문제가 되는 부분은 shouldComponentUpdate 또는 React.memo 를 사용)  
+
+## 예를 들어 `Todo 프로젝트 설계 순서`
+1. App 컴포넌트 초기화(App.js 생성), UI 구조 설계
+2. UI 구성하기   
+ - TodoTemplate  
+	화면을 가운데에 정렬시켜 주며, 앱 타이틀(일정관리)을 보여줍니다.
+	children 으로 내부 JSX 를 props로 받아 와서 렌더링해 줍니다.
+ - TodoInsert  
+	새로운 항목을 입력하고 추가할 수 있는 컴포넌트입니다. 
+	state를 통해 인풋의 상태를 관리합니다.
+ - TodoListItem  
+	각 할 일 항목에 대한 정보를 보여 주는 컴포넌트입니다.
+	todo 객체를 props로 받아 와서 상태에 따라 다른 스타일의 UI를 보여 줍니다.
+ - TodoList  
+	todos 배열을 props 로 받아온 후, 이를 배열 내장 함수 map 을 사용해서 여러 개의 TodoItem 컴포넌트로 변환하여 보여 줍니다.
+3. 기능 구현하기  
+	일정 항목에 대한 상태들은 모두 App 컴포넌트에서 관리합니다.  
+	App 에서 useState 를 사용사여 todos 라는 상태를 정의하고, todos 를 TodoList 의 props 로 전달  
+	
 
 -----
 
@@ -1206,7 +1231,7 @@ unsubscribe(); // 추후 구독을 비활성화할 때 함수를 호출
 액션 타입, 액션 생성 함수, 리듀서 함수를 기능별로 파일 하나에 몰아서 다 작성하는 방식입니다.  
 
 
-- `리덕스 설계 순서`
+# `리덕스 설계 순서`
 1. modules/counter 리덕스 모듈 만들기 
     - 상태 정의
 2. modules/index 루트 리듀서 만들기 
