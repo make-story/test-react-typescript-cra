@@ -393,3 +393,80 @@ module.exports = {
 프로젝트 구성이 CRA와 매우 유사하다는 장점  
 리액트 라우터와도 잘 호환  
 코드 스플리팅 시 발생하는 깜박임 현상(2019년 4월 기준)
+
+
+-----
+
+
+## 디바운스와 스로틀
+`디바운스 - 지연 처리`  
+디바운스(debounce)는 어떤 내용을 입력하다가 특정 시간 동안 대기하고 있으면 마지막에 입력된 내용을 바탕으로 서버 요청을 하는 방법입니다. (자동완성, 서그제스트 등)  
+연관 검색어 창을 떠올리면 이해하기 쉬울 것입니다. 네이버나 구글의 검색창에 내용을 입력할 때는 검색창 하단에 아무 내용도 나오지 않다가 입력을 멈추면 검색창 하단에 연관 검색어 목록이 나타납니다. 바로 이것이 디바운스로 구현한 기능입니다.  
+
+```javascript
+export function debounce(func, delay) {
+	let inDebounce;
+	return function(...args) {
+		if(inDebounce) {
+			clearTimeout(inDebounce);
+		}
+		inDebounce = setTimeout(
+			() => func(...args),
+			delay
+		);
+	}
+}
+
+const run = debounce(val => console.log(val), 100);
+run('a');
+run('b');
+run(2);
+// 100ms 이후
+// 2
+```
+
+`스로틀`  
+스로틀(throttle)은 디바운스 개념과 비슷하지만 '입력되는 동안에도 바로 이전에 요청한 작업을 주기적으로 실행한다는 점'이 다릅니다.  
+이 방식도 흔히 사용하는 앱에서 볼 수 있습니다.  
+예를 들어 페이스북의 타임라인은 스크롤을 내리는 동안 계속해서 다음 내용이 출력되는 일명 '무한 스크롤' 기능이 구현되어 있습니다.  
+만약 이 기능이 디바운스로 구현되어 있다면 '스크롤링'이 멈추지 않은 한 '다음 타임라인 로딩'은 진행되지 않겠지요?  
+디바운스와 다르게 스로틀은 첫 번째 요청이 지연 실행되는 동안에는 중복된 요청을 무시하고 실행 이후에 첫 번째로 호출되는 요청을 동일하게 지연 실행하여 구간 내에서는 중복 요청 과정을 생략합니다.  
+
+```javascript
+function throttle(func/*스크롤이 이동할 때 호출되는 서버요청*/, delay/*호출 생략 시간*/) {
+	let lastFunc;
+	let lastRan;
+	return function(...args) {
+		const context = this;
+		if(!lastRan) {
+			func.call(context, ...args);
+			lastRan = Date.now();
+		}else {
+			if(lastFunc) {
+				clearTimeout(lastFunc);
+			}
+			lastFunc = setTimeout(function() {
+				if((Date.now() - lastRan) >= delay) {
+					// 지연 시간을 계산(Date.now() - lastRan)하고 이 값이 delay 보다 커야만 실행
+					func.call(context, ...args);
+					lastRan = Date.now();
+				}
+			}, delay - (Date.now() - lastRan));
+		}
+	}
+}
+
+const checkPosition = () => {
+	const offset = 500;
+	const currentScrollPosition = window.pageYOffset;
+	const pageBottomPosition = document.body.offsetHeight - window.innerHeight - offset;
+	if(currentScrollPosition >= pageBottomPosition) {
+		// fetch('/page/next');
+		console.log('다음 페이지 로딩');
+	}
+};
+const infiniteScroll = throttle(checkPosition, 300);
+window.addEventListener('scroll', infiniteScroll);
+```
+
+
