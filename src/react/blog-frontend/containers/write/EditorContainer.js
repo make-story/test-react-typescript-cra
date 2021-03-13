@@ -5,7 +5,7 @@ import { changeField, initialize } from '../../modules/write';
 
 const EditorContainer = () => {
 	const dispatch = useDispatch();
-	const { title, body } = useSelector(({ write }) => ({
+	const { title, body } = useSelector(({ write /*각 스토어 list, loading, user 등*/}) => ({
 		title: write.title,
 		body: write.body,
 	}));

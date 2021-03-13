@@ -3,13 +3,13 @@ import qs from 'qs';
 import { withRouter } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import PostList from '../../components/list/PostList';
-import { listPosts } from '../../modules/posts';
+import { listPosts } from '../../modules/list';
 
 const PostListContainer = ({ location }) => {
 	const dispatch = useDispatch();
-	const { posts, error, loading, user } = useSelector(({ posts, loading, user }) => ({
-		posts: posts.posts,
-		error: posts.error,
+	const { posts, error, loading, user } = useSelector(({ list, loading, user, /*각 스토어 list, loading, user 등*/}) => ({
+		posts: list.posts,
+		error: list.error,
 		loading: loading['list/LIST_POSTS'],
 		user: user.user,
 	}));

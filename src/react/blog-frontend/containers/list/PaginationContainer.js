@@ -5,9 +5,9 @@ import { withRouter } from 'react-router-dom';
 import qs from 'qs';
 
 const PaginationContainer = ({ location }) => {
-	const { lastPage, posts, loading } = useSelector(({ posts, loading }) => ({
-		lastPage: posts.lastPage,
-		posts: posts.posts,
+	const { lastPage, posts, loading } = useSelector(({ list, loading, /*각 스토어 list, loading, user 등*/}) => ({
+		lastPage: list.lastPage,
+		posts: list.posts,
 		loading: loading['list/LIST_POSTS'],
 	}));
 

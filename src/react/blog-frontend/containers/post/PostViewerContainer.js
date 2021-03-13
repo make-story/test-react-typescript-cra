@@ -12,7 +12,7 @@ const PostViewerContainer = ({ match, history }) => {
     const { postId } = match.params;
     const dispatch = useDispatch();
 
-    const { post, error, loading, user } = useSelector(({ post, loading }) => ({
+    const { post, error, loading, user } = useSelector(({ post, loading /*각 스토어 list, loading, user 등*/}) => ({
         post: post.post,
         error: post.error,
         loading: loading['post/READ_POST'],

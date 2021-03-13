@@ -8,7 +8,7 @@ import { check } from '../../modules/user';
 const LoginForm = ({ history }) => {
 	const [error, setError] = useState(null);
 	const dispatch = useDispatch();
-	const { form, auth, authError, user } = useSelector(({ auth, user }) => ({
+	const { form, auth, authError, user } = useSelector(({ auth, user /*각 스토어 list, loading, user 등*/}) => ({
 		form: auth.login,
 		auth: auth.auth,
 		authError: auth.authError,

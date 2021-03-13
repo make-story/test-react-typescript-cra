@@ -6,7 +6,7 @@ import { writePost, updatePost } from '../../modules/write';
 
 const WriteActionButtonsContainer = ({ history }) => {
 	const dispatch = useDispatch();
-	const { title, body, tags, post, postError, originalPostId } = useSelector(({ write }) => ({
+	const { title, body, tags, post, postError, originalPostId } = useSelector(({ write /*각 스토어 list, loading, user 등*/}) => ({
 		title: write.title,
 		body: write.body,
 		tags: write.tags,
