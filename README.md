@@ -9,7 +9,9 @@ https://fettblog.eu/typescript-react/
 https://fettblog.eu/typescript-react-component-patterns/  
 
 > 리액트 개발자 도구  
-크롬 웹 스토어 `React Developer Tools`  
+크롬 웹 스토어   
+`React Developer Tools`  
+`Redux DevTools`
 
 -----
 
