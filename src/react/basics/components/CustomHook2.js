@@ -28,6 +28,7 @@ const useArticleApi = () => {
 			setIsError(false);
 			setIsLoading(true);
 			try {
+				// 데이터 호출!
 				const resolvedData = await getArticlesPromise();
 				setArticles(resolvedData);
 			}catch (error) {
