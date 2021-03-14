@@ -2375,6 +2375,19 @@ export default rootReducer;
 -----
 
 
+## redux-saga/effects
+https://redux-saga.js.org/docs/api/
+`fork`  
+비동기 실행을 한다.
+`call`  
+동기 실행을 한다. 따라서 순서대로 함수를 실행해야하는 API 요청 같은 곳에 쓰인다.
+`put`  
+액션 함수 (dispatch)로 진행시킬 때 사용한다.
+
+
+-----
+
+
 ## Redux Toolkit (TypeScript 지원)  
 https://redux-toolkit.js.org/  
 
@@ -2441,3 +2454,4 @@ const msgboxSlice = createSlice({
 
 export default msgboxSlice;
 ```
+
