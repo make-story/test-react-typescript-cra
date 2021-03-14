@@ -1170,9 +1170,9 @@ export default App;
 # FSA(Flux Standard Action)
 https://github.com/redux-utilities/flux-standard-action  
 
-객체는 액션을 구분할 고유한 문자열을 가진 type 필드가 반드시 있으며,   
-payload 필드에 데이터를 담아 전달한다.   
-그 외에 meta, error 필드를 가질 수도 있다.
+객체는 액션을 구분할 고유한 문자열을 가진 `type` 필드가 반드시 있으며,   
+`payload` 필드에 데이터를 담아 전달한다.   
+그 외에 `meta`, `error` 필드를 가질 수도 있다.
 ```javascript
 {
 	type: 'number/increment',

@@ -5,6 +5,28 @@ import { createAction, handleActions } from 'redux-actions';
 import produce from 'immer'; // 불변성 관리 라이브러리 
 
 
+/*
+-
+FSA(Flux Standard Action)
+https://github.com/redux-utilities/flux-standard-action  
+
+객체는 액션을 구분할 고유한 문자열을 가진 `type` 필드가 반드시 있으며,   
+`payload` 필드에 데이터를 담아 전달한다.   
+그 외에 `meta`, `error` 필드를 가질 수도 있다.
+{
+    type: ACTION_NAME,
+    payload: 'createAction 활용할 경우, 두 번째 파라미터 함수 반환 값',
+    meta: '사용자값',
+    error: '사용자값',
+}
+
+-
+redux-actions
+createAction 활용해 위 규격을 갖춰 구조를 만듦
+handleActions 활용해 리듀서(상태값 변경) 간단한 구조로 액션 타입에 따른 분기 설정
+*/
+
+
 // 1. 액션 타입 정의하기 - 상태관리가 필요한 것의 이름
 const CHANGE_INPUT = 'todos/CHANGE_INPUT'; // 인풋 값을 변경함
 const INSERT = 'todos/INSERT'; // 새로운 todo를 등록함
@@ -13,6 +35,24 @@ const REMOVE = 'todos/REMOVE'; // todo를 제거함
 
 
 // 2. 액션 생성 함수 만들기 - 액션 객체를 만들어 주는 함수입니다.
+/*
+액션 객체는 type 필드를 가지고 있음
+{
+	type: 'INCREASE', // 필수 - type: 액션이름
+	사용자추가 데이터키: 값, // 선택적 - 키: 값
+}
+어떤 변화가 일으켜야 할 때마다 위와 같은 액션 객체를 만들어야 하는데,
+매번 액션 객체를 직접 작성하기 번거로울 수도 있고, 만드는 과정에서 실수로 정보를 놓칠 수도 있습니다.
+이러한 일을 방지하기 위해 이를 함수로 만들어서 관리합니다.
+*/
+/*
+FSA(Flux Standard Action)
+https://github.com/redux-utilities/flux-standard-action  
+
+객체는 액션을 구분할 고유한 문자열을 가진 `type` 필드가 반드시 있으며,   
+`payload` 필드에 데이터를 담아 전달한다.   
+그 외에 `meta`, `error` 필드를 가질 수도 있다.
+*/
 /*export const changeInput = input => ({
     // 액션 객체는 type 필드는 반드시 가지고 있어야 합니다.
     type: CHANGE_INPUT,
