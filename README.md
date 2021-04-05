@@ -13,7 +13,9 @@ https://fettblog.eu/typescript-react-component-patterns/
 `React Developer Tools`  
 `Redux DevTools`
 
+
 -----
+
 
 # 리액트 프로젝트 개발 설계  
 1. 기능 설계하기 :   
@@ -48,6 +50,7 @@ API 연동이 필요한 경우 필요한 코드를 준비합니다.
 
 
 -----
+
 
 ## 설치
 > `React Create App` 활용  
@@ -144,7 +147,9 @@ $ yarn build
 $ yarn eject
 ```
 
+
 -----
+
 
 ## 학습
 > `/src/react/bacics` 주석 참고
@@ -194,7 +199,9 @@ $ yarn eject
 - StyledComponents  
 `styles/StyledComponents`  
 
+
 -----
+
 
 ## React.memo
 
@@ -265,7 +272,9 @@ const TagBox = ({ tags, onChangeTags }) => {
 export default TagBox;
 ```
 
+
 -----
+
 
 # 오해  
 Virtual DOM을 사용한다고 해서 사용하지 않을 때와 비교하여 무조건 빠른 것은 아닙니다.  
@@ -281,7 +290,9 @@ Virtual DOM을 사용한다고 해서 사용하지 않을 때와 비교하여 �
 > 라우팅에는 리액트 라우터(react-router), Ajax 처리에는 axios나 fetch, 상태 관리에는 리덕스(redux)나 MobX 를 사용  
 또 리액트는 다른 웹 프레임워크나 라이브러리와 혼용할 수 있음(예: Backbone.js, AngularJS 등)
 
------
+
+---------------------------------------------------------------------------------------------------------
+
 
 # JSX
 - 감싸인 요소  
@@ -368,7 +379,9 @@ JSX에서는 꼭 닫는 태그가 존재해야 합니다. (또는 self-closing �
 - 주석  
 JSX 내부에서 주석을 작성할 때는 `{/* ... */}` 와 같은 형식으로 작성합니다.  
 
+
 -----
+
 
 # 컴포넌트
 - props  
@@ -398,7 +411,9 @@ MyComponent.defaultProps = {
 export default MyComponent;
 ``` 
 
+
 -----
+
 
 # 이벤트 핸들링
 - 이벤트 이름은 카멜 표기법으로 작성합니다.  
@@ -417,7 +432,9 @@ export default MyComponent;
 </div>
 ```
 
+
 -----
+
 
 # ref: DOM에 이름 달기
 > 리액트 컴포넌트 안에서는 id를 사용하면 안 되나요?  
@@ -494,7 +511,9 @@ class App extends Component {
 export default App;
 ```
 
+
 -----
+
 
 # 컴포넌트 반복
 - key  
@@ -514,7 +533,9 @@ const InterationSample = () => {
 export default InterationSample;
 ```
 
+
 -----
+
 
 # 컴포넌트 라이프 사이클
 라이프사이클 메서드의 종류는 총 아홉 가지입니다.  
@@ -551,7 +572,9 @@ DOM 이 생성되고 웹 브라우저상에 나타나는 것을 `마운트(mount
 마운트의 반대 과정, 즉 컴포넌트를 DOM에서 제거하는 것을 언마운트(unmount)라고 합니다.  
 	- componentWillUnmount
 
+
 -----
+
 
 # Hooks
 - useState  
@@ -878,7 +901,9 @@ const [loading, response, error] = usePromise(() => {
 */
 ```
 
+
 -----
+
 
 # 불변성의 중요성
 기존의 값을 직접 수정하지 않으면서 새로운 값을 만들어 내는 것을 '불변성을 지킨다'라고 합니다.
@@ -930,7 +955,9 @@ nextTodos[0] = {
 console.log(todos[0] === nextTodos[0]); // 새로운 객체를 할당해 주었기에 false
 ```
 
+
 -----
+
 
 # immer 를 사용하여 더 쉽게 불변성 유지하기
 객채의 구조가 엄청나게 깊어지면 불변성을 유지하면서 이를 업데이트하는 것이 매우 힘듭니다.  
