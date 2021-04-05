@@ -416,20 +416,139 @@ export default MyComponent;
 
 
 # 이벤트 핸들링
-- 이벤트 이름은 카멜 표기법으로 작성합니다.  
-예를 들어 HTML의 onclick은 리액트에서는 onClick으로 작성해야 합니다. 또 onkeyup 은 onKeyUp 으로 작성합니다.
+1 이벤트 이름은 카멜 표기법으로 작성합니다.  
+예를 들어E, HTML의 onclick 은 리액트에서는 onClick 으로 작성해야 합니다.  
 
-- DOM 요소에만 이벤트를 설정할 수 있습니다.  
-즉 div, button, input, form, span 등의 DOM 요소에는 이벤트를 설정할 수 있지만, 우리가 직접 만든 컴포넌트에는 이벤트를 자체적으로 설정할 수 없습니다.  
-예를 들어 다음과 같이 MyComponent 에 onClick 값을 설정한다면 MyComponent 를 클랙할 때 doSomething 함수가 실행되는 것이 아니라, 그냥 이름이 onClick 인 props 를 MyComponent 에게 전달해 줄 뿐입니다.  
+2 이벤트에 실행할 자바스크립트 코드를 전달하는 것이 아니라, 함수 형태의 값을 전달합니다.    
+```javascript
+class EventPractice extends Component {
+	state = {
+		message: ''
+	}
+ 
+	render() {
+		return (
+			<div>
+				<input
+					type="text"
+					name="message"
+					placeholder="입력해 보세요!"
+					value={this.state.message}
+					onChange={
+						(e) => {
+							this.setState({message: e.target.value})
+						}
+					}
+				/>
+			</div>
+		);
+	}
+}
+```
+  
+3 DOM 요소에만 이벤트를 설정할 수 있습니다.  
+div, button, input, form 등의 DOM 요소에는 이벤트를 설정할 수 있지만, 우리가 직접 만든 컴포넌트에는 이벤트를 자체적으로 설정할 수 없습니다.  
+예를 들어 다음과 같이 MyComponent 에 onClick 값을 설정한다면 MyComponent 를 클랙할 때 doSomething 함수가 실행되는 것이 아니라, 그냥 이름이 onClick 인 props 를 MyComponent 에게 전달해 줄 뿐입니다.    
 ```javascript
 <MyComponent onClick={doSomething}>
 ```
-따라서 컴포넌트에 자체적으로 이벤트를 설정할 수는 없습니다. 하지만 전달받은 props 를 컴포넌트 내부의 DOM 이벤트로 설정할 수는 있죠.
+따라서 컴포넌트에 자체적으로 이벤트를 설정할 수는 없습니다. 하지만 전달받은 props 를 컴포넌트 내부의 DOM 이벤트로 설정할 수는 있죠.  
 ```javascript
 <div onClick={this.props.onClick}>
 	{ /* ... */ }
 </div>
+```
+
+
+```javascript
+const EventPractice = () => {
+	const [username, setUsername] = useState('');
+	const [message, setMessage] = useState('');
+	const onChangeUsername = e => setUsername(e.target.value);
+	const onChangeMessage = e => setMessage(e.target.value);
+	const onClick = () => {
+		alert(`${username}: ${message}`);
+		setUsername('');
+		setMessage('');
+	};
+	const onKeyPress = e => {
+		if(e.key === 'Enter') {
+			onClick();
+		}
+	};
+
+	return (
+		<div>
+			<input
+				type="text"
+				name="username"
+				value={username}
+				onChange={onChangeUsername}
+			/>
+			<input
+				type="text"
+				name="message"
+				value={message}
+				onChange={onChangeMessage}
+				onKeyPress={onKeyPress}
+			/>
+			<button onClick={onClick}>확인</button>
+		</div>
+	);
+};
+
+export default EventPractice;
+```
+
+input 여러개 있을 경우  
+```javascript
+const EventPractice = () => {
+	const [form, setForm] = useState({
+		username: '',
+		message: ''
+	});
+	const { username, message } = form;
+	const onChange = e => {
+		const nextForm = {
+			...form, // 기존의 form 내용을 이 자리에 복사한 뒤
+			[e.target.name]: e.target.value // 원하는 값을 덮어 씌우기
+		};
+		setForm(nextForm);
+	};
+	const onClick = () => {
+		alert(username + ': ' + message);
+		setForm({
+			username: '',
+			message: ''
+		});
+	};
+	const onKeyPress = e => {
+		if(e.key === 'Enter') {
+			onClick();
+		}
+	};
+
+	return (
+		<div>
+			<input
+				type="text"
+				name="username"
+				value={username}
+				onChange={onChange}
+			/>
+			<input
+				type="text"
+				name="message"
+				value={message}
+				onChange={onChange}
+				onKeyPress={onKeyPress}
+			/>
+			<button onClick={onClick}>확인</button>
+		</div>
+	);
+};
+
+export default EventPractice;
 ```
 
 
@@ -519,8 +638,8 @@ export default App;
 - key  
 리액트에서 key는 컴포넌트 배열을 렌더링했을 때 어떤 원소에 변동이 있는지 알아내려고 사용합니다.  
 예를 들어 유동적인 데이터를 다룰 때는 원소를 새로 생성할 수도, 제거할 수도, 수정할 수도 있죠.  
-key가 없을 때는 Virtual DOM을 비교하는 과정에서 리스트를 순차적으로 비교하면서 변화를 감지합니다.  
-하지만 key가 있다면 이 값을 사용하여 어떤 변화가 일어났는지 더욱 빠르게 알아낼 수 있습니다.  
+`key가 없을 때는 Virtual DOM을 비교하는 과정에서 리스트를 순차적으로 비교하면서 변화를 감지`합니다.   
+하지만 `key가 있다면 이 값을 사용하여 어떤 변화가 일어났는지 더욱 빠르게 알아낼 수 있습니다.`    
 ```javascript
 import React from 'react';
 
