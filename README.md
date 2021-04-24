@@ -13,6 +13,9 @@ https://fettblog.eu/typescript-react-component-patterns/
 `React Developer Tools`  
 `Redux DevTools`
 
+> Create React App (CRA)  
+https://create-react-app.dev/  
+
 
 -----
 
