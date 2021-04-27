@@ -5,6 +5,10 @@
 컨테이너 컴포넌트 --> 상태값/디스패치 props 통해 넘겨줌 --> 프레젠테이션 컴포넌트
 
 
+> connect
+컴포넌트(대부분 컨테이너 컴포넌트)를 리덕스와 연동하려면 react-redux 에서 제공하는 connect 함수를 사용
+
+
 > Hooks 를 사용하여 컨테이너 컴포넌트 만들기
 리덕스 스토어와 연동된 컨테이너 컴포넌트를 만들 때 connect 함수를 사용하는 대신 
 react-redux 에서 제공하는 Hooks 를 사용할 수 있습니다.
@@ -74,14 +78,16 @@ import { increase, decrease } from '../modules/counter';
 	},
 });*/
 
-// connect(mapStateToProps, mapDispatchToProps)(연동할 컴포넌트)
+// connect(연동할 컴포넌트의 파라미터 값, ...)(연동할 컴포넌트)
 /*export default connect(
+	// CounterContainer 의 props 로 넘겨주는 값 (함수의 경우 실행 반환 값)
 	mapStateToProps,
 	mapDispatchToProps,
 )(CounterContainer);*/
 
 // mapStateToProps / mapDispatchToProps 함수를 별도 선언하지 않고, 바로 사용 방법
 /*export default connect(
+	// CounterContainer 의 props 로 넘겨주는 값 (함수의 경우 실행 반환 값)
 	state => ({
 		number: state.counter.number,
 	}),
@@ -94,7 +100,7 @@ import { increase, decrease } from '../modules/counter';
 // mapDispatchToProps 에 해당하는 파라미터를 함수 형태가 아닌 액션 생성 함수로 이루어진 객체 형태로 넣어 주는 방법
 // connect 함수가 내부적으로 bindActionCreators 작업을 대신해 준다.
 /*export default connect(
-	// 상태를 컴포넌트의 props 로 넘겨주기 위해 설정하는 함수
+	// CounterContainer 의 props 로 넘겨주는 값 (함수의 경우 실행 반환 값)
 	state => ({
 		number: state.counter.number,
 	}),
