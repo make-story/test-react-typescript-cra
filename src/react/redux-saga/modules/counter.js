@@ -8,7 +8,7 @@ const DECREASE = 'counter/DECREASE';
 const INCREASE_ASYNC = 'counter/INCREASE_ASYNC';
 const DECREASE_ASYNC = 'counter/DECREASE_ASYNC';
 
-// 액션 생성함수
+// 액션 타입 - 값을 '경로/액션타입값' 형태로 주는 이유는, 다른 Action type과 키값이 중복되는 것을 방지하고자 하는 것 (Saga 등 미들웨어에서 값이 동일한 Type 값 실행가능성 제거)
 export const increase = createAction(INCREASE);
 export const decrease = createAction(DECREASE);
 // 마우스 클릭 이벤트가 payload 안에 들어가지 않도록
