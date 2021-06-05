@@ -74,9 +74,9 @@ https://fettblog.eu/typescript-react/getting-started/#npm-packages-to-install
 
 ```
 $ yran add react react-dom  
-$ yran add typescript
-$ yarn add babel-loader @babel/preset-env  
-$ yarn add ts-loader @babel/preset-typescript @babel/preset-react  
+$ yran add typescript ts-loader
+$ yarn add babel-loader @babel/preset-env @babel/preset-typescript @babel/preset-react 
+$ yarn add @types/react 
 ```
 
 .babelrc 또는 webpack.config.js 설정   
@@ -93,6 +93,13 @@ $ yarn add ts-loader @babel/preset-typescript @babel/preset-react
 ```javascript
 module.exports = {
 	// ...
+	resolve: {
+		modules: [
+			'node_modules',
+			path.join(__dirname, 'src'),
+		],
+		extensions: ['.ts', '.tsx', '.js', '.jsx', '.css', '.scss', '.json'],
+	},
 	module: {
 		rules: [
 			{ 
