@@ -76,7 +76,7 @@ https://fettblog.eu/typescript-react/getting-started/#npm-packages-to-install
 $ yran add react react-dom  
 $ yran add typescript ts-loader
 $ yarn add babel-loader @babel/preset-env @babel/preset-typescript @babel/preset-react 
-$ yarn add @types/react 
+$ yarn add @types/react @types/react-dom  
 ```
 
 .babelrc 또는 webpack.config.js 설정   
