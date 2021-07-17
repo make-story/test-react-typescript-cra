@@ -125,6 +125,11 @@ const Hook = () => {
 	// 하나의 useState 함수는 하나의 상태값만 관리할 수 있습니다.
 	const [list, setList] = useState([]);
 	const [number, setNumber] = useState('');
+
+	// 데이터를 로컬 스토리지에 저장하기
+	const loadJSON = key => key && JSON.parse(localStorage.getItem(key));
+	const saveJSON = (key, data) => key && localStorage.setItem(key, JSON.stringify(data));
+	const [data, setData] = useState(loadJSON(`use:${number}`));
 	
 
 	/**
